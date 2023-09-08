@@ -21,5 +21,7 @@ namespace SkillHaven.Domain.Entities
         public Consultant? Consultant { get; set; }
 
         public virtual ICollection<Blog> Blogs { get; set; }
+        public virtual ICollection<BlogComments> BlogComments { get; set; }
+
     }
 }

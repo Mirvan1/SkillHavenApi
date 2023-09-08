@@ -37,8 +37,8 @@ namespace SkillHaven.Infrastructure.Data
             ConfigureUser(modelBuilder.Entity<User>());
             ConfigureConsultant(modelBuilder.Entity<Consultant>());
             ConfigureSupervisor(modelBuilder.Entity<Supervisor>());
-
             ConfigureBlog(modelBuilder.Entity<Blog>());
+            ConfigureBlogComments(modelBuilder.Entity<BlogComments>());
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -78,8 +78,12 @@ namespace SkillHaven.Infrastructure.Data
                 .HasForeignKey<Consultant>(c => c.UserId);
 
             builder.HasMany(u => u.Blogs)
-         .WithOne(c => c.User)
-         .HasForeignKey(c => c.UserId);
+                 .WithOne(c => c.User)
+                 .HasForeignKey(c => c.UserId);
+
+            builder.HasMany(b => b.BlogComments)
+                 .WithOne(bc => bc.User)
+                 .HasForeignKey(bc => bc.BlogCommentsId);
         }
 
         private void ConfigureConsultant(EntityTypeBuilder<Consultant> builder)
@@ -113,7 +117,7 @@ namespace SkillHaven.Infrastructure.Data
 
         private void ConfigureBlog(EntityTypeBuilder<Blog> builder)
         {
-            builder.ToTable("Blogs"); 
+            builder.ToTable("Blogs");
             builder.HasKey(b => b.BlogId);
             builder.Property(b => b.Title).HasMaxLength(255).IsRequired();
             builder.Property(b => b.Content).IsRequired();
@@ -121,10 +125,33 @@ namespace SkillHaven.Infrastructure.Data
             builder.Property(b => b.PublishDate).IsRequired();
             builder.Property(b => b.UpdateDate).IsRequired();
             builder.Property(b => b.IsPublished).IsRequired();
+            builder.Property(b => b.Vote);
 
             builder.HasOne(b => b.User)
                 .WithMany(u => u.Blogs)
                 .HasForeignKey(b => b.UserId);
+
+            builder.HasMany(b => b.BlogComments)
+        .WithOne(bc => bc.Blog)
+        .HasForeignKey(bc => bc.BlogId);
+        }
+
+        private void ConfigureBlogComments(EntityTypeBuilder<BlogComments> builder)
+        {
+            builder.ToTable("BlogComments");
+            builder.HasKey(bc => bc.BlogCommentsId);
+            builder.Property(bc => bc.CommentTitle).HasMaxLength(255).IsRequired();
+            builder.Property(bc => bc.CommentContent).IsRequired();
+            builder.Property(bc => bc.PublishDate).IsRequired();
+            builder.Property(bc => bc.isPublished).IsRequired();
+
+            builder.HasOne(bc => bc.Blog)
+                .WithMany(b => b.BlogComments)
+                .HasForeignKey(bc => bc.BlogId);
+
+            builder.HasOne(bc => bc.User)
+                .WithMany(b => b.BlogComments)
+                .HasForeignKey(bc => bc.UserId);
         }
     }
 }

@@ -20,6 +20,8 @@ namespace SkillHaven.Application.Mappings
             CreateMap<Consultant, SkillerDto>().ReverseMap();
 
             CreateMap<Blog, GetBlogsDto>().ReverseMap();
+
+            CreateMap<BlogComments, BlogCommentDto>().ReverseMap();
         }
     }
 }
