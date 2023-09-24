@@ -10,5 +10,13 @@ namespace SkillHaven.Application.Interfaces.Repositories
     public interface IUserRepository: IRepository<User>
     {
         User GetByEmail(string Email);
+
+        List<User> GetAllSupervisors();
+        List<User> GetAllConsultants();
+
+        List<User> ExceptSupervisors();
+
+        List<User> ExceptConsultants();
+
     }
 }

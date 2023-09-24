@@ -32,6 +32,15 @@ namespace SkillHaven.Infrastructure.Data
         public DbSet<Supervisor> Supervisors { get; set; }
         public DbSet<Consultant> Consultants { get; set; }
 
+        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<BlogComments> BlogComments { get; set; }
+
+        public DbSet<ChatUser> ChatUsers { get; set; }
+        public DbSet<ChatUserConnection> ChatUserConnections { get; set; }
+        public DbSet<Message> Messages { get; set; }
+
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             ConfigureUser(modelBuilder.Entity<User>());
@@ -39,6 +48,12 @@ namespace SkillHaven.Infrastructure.Data
             ConfigureSupervisor(modelBuilder.Entity<Supervisor>());
             ConfigureBlog(modelBuilder.Entity<Blog>());
             ConfigureBlogComments(modelBuilder.Entity<BlogComments>());
+            ConfigureChatUser(modelBuilder.Entity<ChatUser>());
+            ConfigureChatUserConnection(modelBuilder.Entity<ChatUserConnection>());
+            ConfigureMessages(modelBuilder.Entity<Message>());
+
+
+
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -153,5 +168,60 @@ namespace SkillHaven.Infrastructure.Data
                 .WithMany(b => b.BlogComments)
                 .HasForeignKey(bc => bc.UserId);
         }
+
+
+        private void ConfigureChatUser(EntityTypeBuilder<ChatUser> builder)
+        {
+            builder.ToTable("ChatUser");
+            builder.HasKey(cu => cu.UserId);
+            builder.Property(cu => cu.LastSeen).IsRequired();
+            builder.Property(cu => cu.Status).HasMaxLength(50); // Adjust size as needed
+            builder.Property(cu => cu.ProfilePicture).HasMaxLength(255); // Assuming a URL or file path; adjust size as needed
+
+            // Relationships
+            builder.HasMany(cu => cu.SentMessages)
+                .WithOne(m => m.Sender)
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
+
+            builder.HasMany(cu => cu.ReceivedMessages)
+                .WithOne(m => m.Receiver)
+                .HasForeignKey(m => m.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
+
+            builder.HasMany(cu => cu.UserConnections)
+                .WithOne(uc => uc.User)
+                .HasForeignKey(uc => uc.UserId);
+        }
+
+        private void ConfigureMessages(EntityTypeBuilder<Message> builder)
+        {
+            builder.ToTable("Message");
+            builder.HasKey(m => m.MessageId);
+            builder.Property(m => m.Content).IsRequired();
+            builder.Property(m => m.Timestamp).IsRequired();
+            builder.Property(m => m.MessageType).HasMaxLength(50); // Adjust size as needed
+            builder.Property(m => m.SeenStatus).HasMaxLength(50); // Adjust size as needed
+
+            builder.HasOne(m => m.Sender)
+                .WithMany(cu => cu.SentMessages)
+                .HasForeignKey(m => m.SenderId);
+
+            builder.HasOne(m => m.Receiver)
+                .WithMany(cu => cu.ReceivedMessages)
+                .HasForeignKey(m => m.ReceiverId);
+        }
+
+        private void ConfigureChatUserConnection(EntityTypeBuilder<ChatUserConnection> builder)
+        {
+            builder.ToTable("UserConnection");
+            builder.HasKey(uc => uc.Id);
+            builder.Property(uc => uc.ConnectionId).HasMaxLength(255).IsRequired(); // Adjust size based on expected length of connection IDs
+
+            builder.HasOne(uc => uc.User)
+                .WithMany(cu => cu.UserConnections)
+                .HasForeignKey(uc => uc.UserId);
+        }
+
     }
 }

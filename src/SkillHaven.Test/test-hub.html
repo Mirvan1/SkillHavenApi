@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SignalR Test Client</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.9/signalr.min.js"></script>
+</head>
+<body>
+    <button id="login" >Login</button>
+    <button id="sendToAll" disabled>Send Message to All</button>
+    <button id="sendToSelf" disabled>Send Message to Self</button>
+    <button id="joinGroup" disabled>Join Group</button>
+    <button id="sendToGroup" disabled>Send Message to Group</button>
+
+    <script>
+        // Login and get the token
+        document.getElementById("login").addEventListener("click", () => {
+            fetch('http://localhost:5095/api/User/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: 'deneme4@gmail.com',
+                    password: '12345'
+                })
+            })
+          //  .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                localStorage.setItem('userToken', data);
+                startConnection();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        function startConnection() {
+            const userToken = "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJkZmZkZyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImRlbmVtZTRAZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQ29uc3VsdGFudCIsImV4cCI6MTY5NDU1ODQ5MH0._Sik1VRAhzItFQh0RtCzsj5ERu1IYgvNIOEPic6bU4Y";//localStorage.getItem('userToken');
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("http://localhost:5095/chatHub", {
+                    accessTokenFactory: () => userToken
+                })
+                .build();
+
+            connection.on("ReceiveMessage", (user, message) => {
+                console.log(`Received message from ${user}: ${message}`);
+            });
+
+            connection.start()
+                .then(() => {
+                    console.log("Connected");
+                    document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                })
+                .catch(err => console.error(err));
+
+            document.getElementById("sendToAll").addEventListener("click", () => {
+                connection.invoke("SendMessage", "TestUser", "Hello, all!")
+                    .catch(err => console.error(err));
+            });
+
+            document.getElementById("sendToSelf").addEventListener("click", () => {
+                connection.invoke("SendMessageToCaller", "TestUser", "Hello, self!")
+                    .catch(err => console.error(err));
+            });
+
+            document.getElementById("joinGroup").addEventListener("click", () => {
+                connection.invoke("JoinGroup", "TestGroup")
+                    .catch(err => console.error(err));
+            });
+
+            document.getElementById("sendToGroup").addEventListener("click", () => {
+                connection.invoke("SendMessageToGroup", "TestUser", "Hello, group!", "TestGroup")
+                    .catch(err => console.error(err));
+            });
+        }
+    </script>
+</body>
+</html>
