@@ -9,8 +9,8 @@ namespace SkillHaven.Domain.Entities
     public class ChatUserConnection
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
-        public virtual ChatUser User { get; set; }
+        public int ChatUserId { get; set; }
+        public virtual ChatUser ChatUser { get; set; }
         public string ConnectionId { get; set; }
         public DateTime ConnectedTime { get; set; }
     }

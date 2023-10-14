@@ -99,6 +99,8 @@ namespace SkillHaven.Infrastructure.Data
             builder.HasMany(b => b.BlogComments)
                  .WithOne(bc => bc.User)
                  .HasForeignKey(bc => bc.BlogCommentsId);
+
+
         }
 
         private void ConfigureConsultant(EntityTypeBuilder<Consultant> builder)
@@ -173,7 +175,8 @@ namespace SkillHaven.Infrastructure.Data
         private void ConfigureChatUser(EntityTypeBuilder<ChatUser> builder)
         {
             builder.ToTable("ChatUser");
-            builder.HasKey(cu => cu.UserId);
+            builder.HasKey(cu => cu.Id);
+            builder.Property(cu => cu.UserId).IsRequired();
             builder.Property(cu => cu.LastSeen).IsRequired();
             builder.Property(cu => cu.Status).HasMaxLength(50); // Adjust size as needed
             builder.Property(cu => cu.ProfilePicture).HasMaxLength(255); // Assuming a URL or file path; adjust size as needed
@@ -190,8 +193,8 @@ namespace SkillHaven.Infrastructure.Data
                 .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
 
             builder.HasMany(cu => cu.UserConnections)
-                .WithOne(uc => uc.User)
-                .HasForeignKey(uc => uc.UserId);
+                .WithOne(uc => uc.ChatUser)
+                .HasForeignKey(uc => uc.ChatUserId);
         }
 
         private void ConfigureMessages(EntityTypeBuilder<Message> builder)
@@ -218,9 +221,9 @@ namespace SkillHaven.Infrastructure.Data
             builder.HasKey(uc => uc.Id);
             builder.Property(uc => uc.ConnectionId).HasMaxLength(255).IsRequired(); // Adjust size based on expected length of connection IDs
 
-            builder.HasOne(uc => uc.User)
+            builder.HasOne(uc => uc.ChatUser)
                 .WithMany(cu => cu.UserConnections)
-                .HasForeignKey(uc => uc.UserId);
+                .HasForeignKey(uc => uc.ChatUserId);
         }
 
     }

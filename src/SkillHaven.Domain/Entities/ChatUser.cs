@@ -8,10 +8,11 @@ namespace SkillHaven.Domain.Entities
 {
     public class ChatUser
     {
+        public int Id { get; set; } 
         public int UserId { get; set; } 
         public DateTime LastSeen { get; set; }
-        public string Status { get; set; } 
-        public string ProfilePicture { get; set; }
+        public string? Status { get; set; } 
+        public string? ProfilePicture { get; set; }
         public virtual ICollection<Message> SentMessages { get; set; }
         public virtual ICollection<Message> ReceivedMessages { get; set; }
         public virtual ICollection<ChatUserConnection> UserConnections { get; set; }

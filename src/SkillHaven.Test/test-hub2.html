@@ -37,8 +37,12 @@
 
     <h2>Received Messages</h2>
     <ul id="messagesList"></ul>
-    <script type="text/javascript">
-        const token="eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQWRtaW4iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJhZG1pbjIyQGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNjk1NzgwODQ0fQ.YGQS_-ORsOmAQf7BZajtA-GTgUhk2xPt_U-i4IkfNTw";
+    <h2>Client Messages</h2>
+    <ul id="ClientmessagesList"></ul>
+
+
+<script type="text/javascript">
+        const token="eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZGZmZGciLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJkZW5lbWU0QGdtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkNvbnN1bHRhbnQiLCJleHAiOjE2OTc1ODQ0NTV9.B0YvruLRXNnICjoAxBVIS1dhlBXq0f9V9tEUPm1MyF4";
 
         const connection = new signalR.HubConnectionBuilder()
                     .withUrl("http://localhost:5095/chatHub", {
@@ -65,7 +69,7 @@
         });
 
         document.getElementById("sendMessageToClient").addEventListener("click", function () {
-            const receiverId = document.getElementById("receiverIdInput").value;
+            const receiverId = parseInt(document.getElementById("receiverIdInput").value);
             const messageContent = document.getElementById("messageToClientInput").value;
             connection.invoke("SendMessageToClient", receiverId, messageContent)
                 .catch(err => console.error(err));
@@ -86,13 +90,17 @@
 
         document.getElementById("sendMessageToSupervisors").addEventListener("click", function () {
             const messageContent = document.getElementById("messageToSupervisorsInput").value;
-            connection.invoke("SendMessageToSuperVisors", messageContent)
+            const receiverId =1;// parseInt(document.getElementById("receiverIdInput").value);
+
+            connection.invoke("SendMessageToSuperVisors", messageContent,receiverId)
                 .catch(err => console.error(err));
         });
 
         document.getElementById("sendMessageToConsultants").addEventListener("click", function () {
             const messageContent = document.getElementById("messageToConsultantsInput").value;
-            connection.invoke("SendMessageToConsultants", messageContent)
+            const receiverId =1;// parseInt(document.getElementById("receiverIdInput").value);
+
+            connection.invoke("SendMessageToConsultants", messageContent,receiverId)
                 .catch(err => console.error(err));
         });
 
@@ -101,6 +109,26 @@
             li.textContent = `${userId}: ${message}`;
             document.getElementById("messagesList").appendChild(li);
         });
+
+
+   
+        connection.on("ReceiveMessageToClient", (userId, message) => {
+    const li = document.createElement("li");
+    console.log(`Message received: ${userId}, ${message}`);
+
+    li.textContent = `${userId}: ${message}`;
+    document.getElementById("ClientmessagesList").appendChild(li);
+});
+
+connection.on("ReceiveMessageToSuperVisors", (userId, message) => {
+    const li = document.createElement("li");
+    console.log(`Message received: ${userId}, ${message}`);
+
+    li.textContent = `${userId}: ${message}`;
+    document.getElementById("ClientmessagesList").appendChild(li);
+});
+
+
 
         // Add more "connection.on" handlers as needed for other message types
     </script>

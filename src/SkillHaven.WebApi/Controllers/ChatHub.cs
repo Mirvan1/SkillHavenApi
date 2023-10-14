@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using SkillHaven.Application.Interfaces.Repositories;
+using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Infrastructure.Repositories;
 using SkillHaven.Shared;
 using SkillHaven.Shared.Infrastructure.Exceptions;
+using System.Linq.Expressions;
 using System.Security.Claims;
 
 namespace SkillHaven.WebApi.Controllers
@@ -17,17 +19,18 @@ namespace SkillHaven.WebApi.Controllers
         private readonly IMessageRepository _messageRepository;
         private readonly IUserRepository _userRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserService _userService;
 
 
 
-
-        public ChatHub(IUserConnectionRepository userConnectionRepo, IMessageRepository messageRepository, IChatUserRepository chatUserRepository, IUserRepository userRepository, IHttpContextAccessor httpContextAccessor)
+        public ChatHub(IUserConnectionRepository userConnectionRepo, IMessageRepository messageRepository, IChatUserRepository chatUserRepository, IUserRepository userRepository, IHttpContextAccessor httpContextAccessor, IUserService userService)
         {
             _userConnectionRepo = userConnectionRepo;
             _messageRepository=messageRepository;
             _chatUserRepository=chatUserRepository;
             _userRepository=userRepository;
             _httpContextAccessor=httpContextAccessor;
+            _userService=userService;
         }
 
         public async Task SendMessageToAll(string messageContent)
@@ -38,7 +41,7 @@ namespace SkillHaven.WebApi.Controllers
 
             var chatUsers = _userRepository.GetAll();
 
-            if(chatUsers is null)  throw new DatabaseValidationException("Users cannot found"); 
+            if (chatUsers is null) throw new DatabaseValidationException("Users cannot found");
 
             foreach (var user in chatUsers)
             {
@@ -76,13 +79,13 @@ namespace SkillHaven.WebApi.Controllers
             _messageRepository.SaveChanges();
 
             var receiver = _userConnectionRepo.GetByUserId(receiverId);//useridye gore bul
-            if(receiver is null)
+            if (receiver is null)
             {
                 throw new DatabaseValidationException("Receiver can not find");
             }
 
 
-            await Clients.Client(receiver.ConnectionId).SendAsync($"ReceiveMessageTo{currentUser.UserId}From{receiverId}", currentUser.UserId, messageContent);
+                await Clients.Client(receiver.ConnectionId).SendAsync($"ReceiveMessageToClient", currentUser.UserId.ToString(), messageContent);
         }
 
         public async Task JoinGroup(string groupName)
@@ -95,16 +98,16 @@ namespace SkillHaven.WebApi.Controllers
             await Clients.Group(groupName).SendAsync("ReceiveMessageToAll", user, message);
         }
 
-        public async Task SendMessageToSuperVisors( string messageContent, int userId=1)
+        public async Task SendMessageToSuperVisors(string messageContent, int userId = 1)
         {
             var email = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
             var currentUser = _userRepository.GetByEmail(email);
             var userAdmin = _userRepository.GetById(currentUser.UserId);
 
-            if (!userAdmin.Role.Equals(Role.Admin)) throw new UnauthorizedAccessException("Only Admin use this feature");
+            if (userAdmin.Role!=Role.Admin.ToString()) throw new UnauthorizedAccessException("Only Admin use this feature");
 
             var supervisors = _userRepository.GetAllSupervisors();
-            IEnumerable<string> supervisorConnections = GetSupervisorConnectionIds (supervisors);
+            IEnumerable<string> supervisorConnections = GetSupervisorConnectionIds(supervisors);
 
             foreach (var user in supervisors)
             {
@@ -149,7 +152,7 @@ namespace SkillHaven.WebApi.Controllers
             }
 
             _messageRepository.SaveChanges();
-            
+
             await Clients.AllExcept(supervisorConnections).SendAsync("ReceiveMessageToConsultants", userAdmin.UserId, messageContent);
         }
 
@@ -160,44 +163,56 @@ namespace SkillHaven.WebApi.Controllers
 
         public override async Task OnConnectedAsync()
         {
-            //var userId = int.Parse(Context.User.Claims.FirstOrDefault(x => x.Type==ClaimTypes.Email).Value;
-            var email = Context.User.Claims.FirstOrDefault(x => x.Type==ClaimTypes.Email).Value;
-            var currentUser = _userRepository.GetByEmail(email);
-            var connectionId = Context.ConnectionId;
-
-
-            var checkChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
-
-            if (checkChatUser is null)
+            try
             {
-                var newChatUser = new ChatUser
+                //var userId = int.Parse(Context.User.Claims.FirstOrDefault(x => x.Type==ClaimTypes.Email).Value;
+                var user = _userService.GetUser();
+
+                string EmailClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
+                var email = Context.User.Claims.FirstOrDefault(x => x.Type==EmailClaim).Value;
+                var currentUser = _userRepository.GetByEmail(email);
+                var connectionId = Context.ConnectionId;
+
+
+                var checkChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
+
+                if (checkChatUser is null)
                 {
-                    UserId=currentUser.UserId,
-                    LastSeen=DateTime.Now,
-                    Status=ChatUserStatus.Online.ToString()
-                };
-                _chatUserRepository.Add(newChatUser);
-                _chatUserRepository.SaveChanges();
-            }
+                    var newChatUser = new ChatUser
+                    {
+                        UserId=currentUser.UserId,
+                        LastSeen=DateTime.Now,
+                        Status=ChatUserStatus.Online.ToString()
+                    };
+                    _chatUserRepository.Add(newChatUser);
+                    _chatUserRepository.SaveChanges();
+                }
 
-            bool checkConnections = _userConnectionRepo.CheckUserConnected(currentUser.UserId, connectionId);
+                bool checkConnections = _userConnectionRepo.CheckUserConnected(currentUser.UserId, connectionId);
 
-            if (checkConnections)
-            {
-                throw new DatabaseValidationException("User already connected");
-            }
-            else
-            {
-                var newConnection = new ChatUserConnection
+                if (checkConnections)
                 {
-                    UserId=currentUser.UserId,
-                    ConnectionId=connectionId,
-                    ConnectedTime=DateTime.Now
-                };
-                _userConnectionRepo.Add(newConnection);
-                _userConnectionRepo.SaveChanges();
+                    throw new DatabaseValidationException("User already connected");
+                }
+                else
+                {
+                    var getChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
+                    var newConnection = new ChatUserConnection
+                    {
+                        ChatUserId=getChatUser.Id,
+                        ConnectionId=connectionId,
+                        ConnectedTime=DateTime.Now
+                    };
+                    _userConnectionRepo.Add(newConnection);
+                    _userConnectionRepo.SaveChanges();
+                }
+                await base.OnConnectedAsync();
             }
-            await base.OnConnectedAsync();
+
+            catch (Exception e)
+            {
+                throw;
+            }
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
@@ -207,8 +222,8 @@ namespace SkillHaven.WebApi.Controllers
 
             if (userConnection is null) throw new DatabaseValidationException("Relate connectionId do not found");
 
-            userConnection.User.Status=ChatUserStatus.Offline.ToString();
-            _chatUserRepository.Update(userConnection.User);
+            userConnection.ChatUser.Status=ChatUserStatus.Offline.ToString();
+            _chatUserRepository.Update(userConnection.ChatUser);
             _chatUserRepository.SaveChanges();
 
 
@@ -219,15 +234,15 @@ namespace SkillHaven.WebApi.Controllers
         }
 
 
-        public  async Task OnDisconnectedNoException()
+        public async Task OnDisconnectedNoException()
         {
             var connectionId = Context.ConnectionId;
             var userConnection = _userConnectionRepo.GetByConnnectionId(connectionId);
 
             if (userConnection is null) throw new DatabaseValidationException("Relate connectionId do not found");
 
-            userConnection.User.Status=ChatUserStatus.Offline.ToString();
-            _chatUserRepository.Update(userConnection.User);
+            userConnection.ChatUser.Status=ChatUserStatus.Offline.ToString();
+            _chatUserRepository.Update(userConnection.ChatUser);
             _chatUserRepository.SaveChanges();
 
 
@@ -254,12 +269,12 @@ namespace SkillHaven.WebApi.Controllers
 
         public int GetUserIdFromConnectionId(string connectionId)
         {
-            return  _userConnectionRepo.GetByConnnectionId(connectionId).UserId;
+            return _userConnectionRepo.GetByConnnectionId(connectionId).ChatUserId;
         }
 
         public string GetConnectionIdFromUserId(int userId)
         {
-            return  _userConnectionRepo.GetByUserId(userId).ConnectionId;
+            return _userConnectionRepo.GetByUserId(userId).ConnectionId;
         }
 
 
@@ -372,15 +387,15 @@ namespace SkillHaven.WebApi.Controllers
 
     public enum MessageType
     {
-        All=1,
-        AllSupervisors=2,
-        Client=3,
-        AllConsultants=4
+        All = 1,
+        AllSupervisors = 2,
+        Client = 3,
+        AllConsultants = 4
     }
 
     public enum ChatUserStatus
     {
-        Online=1,
-        Offline=2
+        Online = 1,
+        Offline = 2
     }
 }
