@@ -15,7 +15,7 @@ using SkillHaven.Domain.Entities;
 using SkillHaven.Infrastructure.Data;
 using SkillHaven.Infrastructure.Repositories;
 using SkillHaven.Shared;
-using SkillHaven.WebApi.Controllers;
+using SkillHaven.WebApi.Hubs;
 using Swashbuckle.AspNetCore.Filters;
 using System.Linq;
 using System.Net.NetworkInformation;

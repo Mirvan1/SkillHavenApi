@@ -122,19 +122,24 @@ namespace SkillHaven.Infrastructure.Repositories
             //    query = query.(includeProperty);
             //}
 
+            try
+            {
 
-
-            var list = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-            int totalCount = query.Count();
-            int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
-
+                var list = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                int totalCount = query.Count();
+                int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+            
             return new PaginatedResult<T>
             {
                 TotalCount = totalCount,
                 TotalPages = totalPages,
                 Data = list
             };
-
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
         }
 
 

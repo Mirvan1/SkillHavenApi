@@ -10,7 +10,7 @@ using SkillHaven.Shared.Infrastructure.Exceptions;
 using System.Linq.Expressions;
 using System.Security.Claims;
 
-namespace SkillHaven.WebApi.Controllers
+namespace SkillHaven.WebApi.Hubs
 {
     public class ChatHub : Hub
     {
@@ -26,11 +26,11 @@ namespace SkillHaven.WebApi.Controllers
         public ChatHub(IUserConnectionRepository userConnectionRepo, IMessageRepository messageRepository, IChatUserRepository chatUserRepository, IUserRepository userRepository, IHttpContextAccessor httpContextAccessor, IUserService userService)
         {
             _userConnectionRepo = userConnectionRepo;
-            _messageRepository=messageRepository;
-            _chatUserRepository=chatUserRepository;
-            _userRepository=userRepository;
-            _httpContextAccessor=httpContextAccessor;
-            _userService=userService;
+            _messageRepository = messageRepository;
+            _chatUserRepository = chatUserRepository;
+            _userRepository = userRepository;
+            _httpContextAccessor = httpContextAccessor;
+            _userService = userService;
         }
 
         public async Task SendMessageToAll(string messageContent)
@@ -38,6 +38,9 @@ namespace SkillHaven.WebApi.Controllers
             //var userId = int.Parse(Context.User.Identity.Em);
             var email = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
             var currentUser = _userRepository.GetByEmail(email);
+           
+            var getSenderChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
+            if (getSenderChatUser is null) throw new ArgumentNullException(" sender not found");
 
             var chatUsers = _userRepository.GetAll();
 
@@ -45,13 +48,17 @@ namespace SkillHaven.WebApi.Controllers
 
             foreach (var user in chatUsers)
             {
+                var getReceiverChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
+
+                if (getReceiverChatUser is null) throw new ArgumentNullException("one of receiver not found");
+
                 var message = new Message
                 {
-                    SenderId = currentUser.UserId,
+                    SenderId = getSenderChatUser.Id,
                     Content = messageContent,
                     Timestamp = DateTime.Now,
-                    ReceiverId=user.UserId,
-                    MessageType=MessageType.All.ToString(),
+                    ReceiverId = getReceiverChatUser.Id,
+                    MessageType = MessageType.All.ToString(),
                 };
                 _messageRepository.Add(message);
             }
@@ -66,26 +73,33 @@ namespace SkillHaven.WebApi.Controllers
             var email = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
             var currentUser = _userRepository.GetByEmail(email);
 
+            var getSenderChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
+            if (getSenderChatUser is null) throw new ArgumentNullException(" sender not found");
+
+
+            var getReceiverChatUser = _chatUserRepository.getByUserId(receiverId);
+            if (getReceiverChatUser is null) throw new ArgumentNullException(" receiver not found");
+
             var messageClient = new Message
             {
-                SenderId = currentUser.UserId,
+                SenderId = getSenderChatUser.Id,
                 Content = messageContent,
                 Timestamp = DateTime.Now,
-                ReceiverId=receiverId,
-                MessageType=MessageType.All.ToString(),
+                ReceiverId = getReceiverChatUser.Id,
+                MessageType = MessageType.All.ToString(),
             };
 
             _messageRepository.Add(messageClient);
             _messageRepository.SaveChanges();
 
-            var receiver = _userConnectionRepo.GetByUserId(receiverId);//useridye gore bul
+            var receiver = _userConnectionRepo.GetByChatUserId(getReceiverChatUser.Id);//useridye gore bul
             if (receiver is null)
             {
                 throw new DatabaseValidationException("Receiver can not find");
             }
 
 
-                await Clients.Client(receiver.ConnectionId).SendAsync($"ReceiveMessageToClient", currentUser.UserId.ToString(), messageContent);
+            await Clients.Client(receiver.ConnectionId).SendAsync($"ReceiveMessageToClient", currentUser.UserId.ToString(), messageContent);
         }
 
         public async Task JoinGroup(string groupName)
@@ -104,20 +118,26 @@ namespace SkillHaven.WebApi.Controllers
             var currentUser = _userRepository.GetByEmail(email);
             var userAdmin = _userRepository.GetById(currentUser.UserId);
 
-            if (userAdmin.Role!=Role.Admin.ToString()) throw new UnauthorizedAccessException("Only Admin use this feature");
+            if (userAdmin.Role != Role.Admin.ToString()) throw new UnauthorizedAccessException("Only Admin use this feature");
+            var getSenderChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
+            if (getSenderChatUser is null) throw new ArgumentNullException("Chat user not found..");
 
             var supervisors = _userRepository.GetAllSupervisors();
             IEnumerable<string> supervisorConnections = GetSupervisorConnectionIds(supervisors);
 
             foreach (var user in supervisors)
             {
+                var getReceiverChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
+
+                if (getReceiverChatUser is null) throw new ArgumentNullException("one of receiver not found");
+
                 var message = new Message
                 {
-                    SenderId = currentUser.UserId,
+                    SenderId = getSenderChatUser.Id,
                     Content = messageContent,
                     Timestamp = DateTime.Now,
-                    ReceiverId=user.UserId,
-                    MessageType=MessageType.All.ToString(),
+                    ReceiverId = getReceiverChatUser.Id,
+                    MessageType = MessageType.AllSupervisors.ToString(),
                 };
                 _messageRepository.Add(message);
             }
@@ -133,20 +153,27 @@ namespace SkillHaven.WebApi.Controllers
             var currentUser = _userRepository.GetByEmail(email);
             var userAdmin = _userRepository.GetById(currentUser.UserId);
 
-            if (!userAdmin.Role.Equals(Role.Admin)) throw new UnauthorizedAccessException("Only Admin use this feature");
+            if (userAdmin.Role != Role.Admin.ToString()) throw new UnauthorizedAccessException("Only Admin use this feature");
 
             var supervisors = _userRepository.GetAllConsultants();
+            var getSenderChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
+            if (getSenderChatUser is null) throw new ArgumentNullException("Chat user not found..");
+
             IEnumerable<string> supervisorConnections = GetConsultantConnectionIds(supervisors);
 
             foreach (var user in supervisors)
             {
+                var getReceiverChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
+
+                if (getReceiverChatUser is null) throw new ArgumentNullException("one of receiver not found");
+
                 var message = new Message
                 {
-                    SenderId = userId,
+                    SenderId = getSenderChatUser.Id,
                     Content = messageContent,
                     Timestamp = DateTime.Now,
-                    ReceiverId=user.UserId,
-                    MessageType=MessageType.All.ToString(),
+                    ReceiverId = getReceiverChatUser.Id,
+                    MessageType = MessageType.AllConsultants.ToString(),
                 };
                 _messageRepository.Add(message);
             }
@@ -169,7 +196,7 @@ namespace SkillHaven.WebApi.Controllers
                 var user = _userService.GetUser();
 
                 string EmailClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
-                var email = Context.User.Claims.FirstOrDefault(x => x.Type==EmailClaim).Value;
+                var email = Context.User.Claims.FirstOrDefault(x => x.Type == EmailClaim).Value;
                 var currentUser = _userRepository.GetByEmail(email);
                 var connectionId = Context.ConnectionId;
 
@@ -180,9 +207,9 @@ namespace SkillHaven.WebApi.Controllers
                 {
                     var newChatUser = new ChatUser
                     {
-                        UserId=currentUser.UserId,
-                        LastSeen=DateTime.Now,
-                        Status=ChatUserStatus.Online.ToString()
+                        UserId = currentUser.UserId,
+                        LastSeen = DateTime.Now,
+                        Status = ChatUserStatus.Online.ToString()
                     };
                     _chatUserRepository.Add(newChatUser);
                     _chatUserRepository.SaveChanges();
@@ -199,9 +226,9 @@ namespace SkillHaven.WebApi.Controllers
                     var getChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
                     var newConnection = new ChatUserConnection
                     {
-                        ChatUserId=getChatUser.Id,
-                        ConnectionId=connectionId,
-                        ConnectedTime=DateTime.Now
+                        ChatUserId = getChatUser.Id,
+                        ConnectionId = connectionId,
+                        ConnectedTime = DateTime.Now
                     };
                     _userConnectionRepo.Add(newConnection);
                     _userConnectionRepo.SaveChanges();
@@ -222,7 +249,7 @@ namespace SkillHaven.WebApi.Controllers
 
             if (userConnection is null) throw new DatabaseValidationException("Relate connectionId do not found");
 
-            userConnection.ChatUser.Status=ChatUserStatus.Offline.ToString();
+            userConnection.ChatUser.Status = ChatUserStatus.Offline.ToString();
             _chatUserRepository.Update(userConnection.ChatUser);
             _chatUserRepository.SaveChanges();
 
@@ -241,7 +268,7 @@ namespace SkillHaven.WebApi.Controllers
 
             if (userConnection is null) throw new DatabaseValidationException("Relate connectionId do not found");
 
-            userConnection.ChatUser.Status=ChatUserStatus.Offline.ToString();
+            userConnection.ChatUser.Status = ChatUserStatus.Offline.ToString();
             _chatUserRepository.Update(userConnection.ChatUser);
             _chatUserRepository.SaveChanges();
 

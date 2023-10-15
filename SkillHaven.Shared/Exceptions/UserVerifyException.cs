@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace AseShop.Common.Infrastructure.Exceptions;
+namespace SkillHaven.Shared.Exceptions;
 
 public class UserVerifyException : Exception
 {

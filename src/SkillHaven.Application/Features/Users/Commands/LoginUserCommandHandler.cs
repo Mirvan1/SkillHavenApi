@@ -1,5 +1,4 @@
-﻿using AseShop.Common.Infrastructure.Exceptions;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -40,12 +39,12 @@ namespace SkillHaven.Application.Features.Users.Commands
         {
             var user = _userRepository.GetByEmail(request.Email);//getbyemail ++
 
-            //bool passwordValidation = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
+            bool passwordValidation = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
 
-            //if (!passwordValidation) 
-            //    throw new DatabaseValidationException("Password is wrong");
+            if (!passwordValidation)
+                throw new DatabaseValidationException("Password is wrong");
 
-            if(!user.Email.Equals(request.Email))
+            if (!user.Email.Equals(request.Email))
                 throw new DatabaseValidationException("Email cannot found");
           
  

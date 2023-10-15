@@ -1,11 +1,11 @@
-﻿using AseShop.Common.Infrastructure.Exceptions;
-using AutoMapper;
+﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Shared;
+using SkillHaven.Shared.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

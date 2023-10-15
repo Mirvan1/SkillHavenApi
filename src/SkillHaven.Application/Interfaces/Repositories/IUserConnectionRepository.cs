@@ -16,5 +16,8 @@ namespace SkillHaven.Application.Interfaces.Repositories
         void RemoveByConnectionId(string connectionId);
 
         ChatUserConnection GetByConnnectionId(string connectionId);
+
+        public ChatUserConnection GetByChatUserId(int chatUserId);
+
     }
 }

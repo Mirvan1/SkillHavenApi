@@ -1,5 +1,4 @@
-﻿using AseShop.Common.Infrastructure.Exceptions;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using SkillHaven.Application.Interfaces.Repositories;

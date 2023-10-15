@@ -201,7 +201,7 @@ namespace SkillHaven.Infrastructure.Data
         {
             builder.ToTable("Message");
             builder.HasKey(m => m.MessageId);
-            builder.Property(m => m.Content).IsRequired();
+            builder.Property(m => m.Content).HasColumnName("MessageContent");
             builder.Property(m => m.Timestamp).IsRequired();
             builder.Property(m => m.MessageType).HasMaxLength(50); // Adjust size as needed
             builder.Property(m => m.SeenStatus).HasMaxLength(50); // Adjust size as needed

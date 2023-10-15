@@ -33,6 +33,11 @@ namespace SkillHaven.Infrastructure.Repositories
             return entity.Include(x=>x.ChatUser)?.FirstOrDefault(x => x.ConnectionId==connectionId);
         }
 
+        public ChatUserConnection GetByChatUserId(int chatUserId)
+        {
+            return entity.Include(x => x.ChatUser)?.FirstOrDefault(x => x.ChatUserId==chatUserId);
+        }
+
 
         public void RemoveByConnectionId(string connectionId)
         {

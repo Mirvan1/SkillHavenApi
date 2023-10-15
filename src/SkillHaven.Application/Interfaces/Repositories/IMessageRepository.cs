@@ -9,5 +9,8 @@ namespace SkillHaven.Application.Interfaces.Repositories
 {
     public interface IMessageRepository : IRepository<Message>
     {
+        List<Message> GetMessagesBySender(int senderId);
+        List<Message> GetMessagesByReceiver(int receiverId);
+
     }
 }

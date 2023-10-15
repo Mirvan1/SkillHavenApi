@@ -1,5 +1,4 @@
-﻿using AseShop.Common.Infrastructure.Exceptions;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -45,7 +44,8 @@ namespace SkillHaven.Application.Interfaces.Services
 
         public bool isUserAuthenticated()
         {
-            var getUserEmail = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
+            string EmailClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
+            var getUserEmail = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == EmailClaim).Value;
 
             var getUser = _userRepository.GetByEmail(getUserEmail);
 

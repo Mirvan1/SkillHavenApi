@@ -14,6 +14,7 @@ namespace SkillHaven.WebApi.Controllers
     {
         public BlogController(IMediator mediator) : base(mediator)
         {
+
         }
 
 

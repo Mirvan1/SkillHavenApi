@@ -14,5 +14,16 @@ namespace SkillHaven.Infrastructure.Repositories
         public MessageRepository(shDbContext dbContext) : base(dbContext)
         {
         }
+
+        public List<Message> GetMessagesByReceiver(int receiverId)
+        {
+           
+            return entity.Where(x => x.ReceiverId==receiverId).ToList();
+        }
+
+        public List<Message> GetMessagesBySender(int senderId)
+        {
+            return entity.Where(x => x.SenderId==senderId).ToList();
+        }
     }
 }
