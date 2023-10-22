@@ -16,9 +16,10 @@ namespace SkillHaven.Application.Features.Users.Commands
         private readonly IUserRepository _userRepository;
         private readonly IUserService _userService;
 
-        public DeleteUserCommandHandler(IUserRepository userRepository)
+        public DeleteUserCommandHandler(IUserRepository userRepository, IUserService userService)
         {
             _userRepository = userRepository;
+            _userService=userService;
         }
         public Task<bool> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {

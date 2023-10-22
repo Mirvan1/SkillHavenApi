@@ -1,10 +1,13 @@
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SkillHaven.Application.Features.Users.Queries;
@@ -15,8 +18,10 @@ using SkillHaven.Domain.Entities;
 using SkillHaven.Infrastructure.Data;
 using SkillHaven.Infrastructure.Repositories;
 using SkillHaven.Shared;
+using SkillHaven.WebApi.Extensions;
 using SkillHaven.WebApi.Hubs;
 using Swashbuckle.AspNetCore.Filters;
+using System.Globalization;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reflection;
@@ -54,6 +59,7 @@ builder.Services.AddScoped<IBlogCommentRepository, BlogCommentRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IChatUserRepository, ChatUserRepository>();
 builder.Services.AddScoped<IUserConnectionRepository, ChatUserConnectionRepository>();
+//builder.Services.AddScoped<IStringLocalizer>(sp => new Localizer("Errors"));
 
 
 //builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
@@ -108,6 +114,8 @@ builder.Services.AddSwaggerGen(options=>{
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey
     });
+    options.OperationFilter<AcceptLanguageOperationFilter>();
+
 
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 
@@ -117,11 +125,32 @@ builder.Services.AddSwaggerGen(options=>{
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
-        builder => builder.WithOrigins("http://localhost:8000", "http://127.0.0.1:8080") // adjust the port if you use a different one
+        builder => builder.WithOrigins("http://localhost:8000", "http://127.0.0.1:8080") 
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials());
 });
+
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { "en-EN", "tr-TR" };
+
+
+
+    options.SetDefaultCulture(supportedCultures[0])
+          .AddSupportedCultures(supportedCultures)
+          .AddSupportedUICultures(supportedCultures);
+
+    options.RequestCultureProviders = new List<IRequestCultureProvider>
+        {
+            new QueryStringRequestCultureProvider(),
+            new AcceptLanguageHeaderRequestCultureProvider()
+        };
+
+});
+
 
 builder.Services.AddSignalR();
 
@@ -135,7 +164,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseCors("CorsPolicy");
-
+var localizeOptions = app.Services.GetService<IOptions<RequestLocalizationOptions>>();
+app.UseRequestLocalization(localizeOptions.Value);
 app.UseRouting();  
 
 app.UseHttpsRedirection();

@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Localization;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Shared;
@@ -18,20 +20,22 @@ namespace SkillHaven.Application.Features.Skills.Queries
         private readonly ISupervisorRepository _supervisorRepository;
         private readonly IConsultantRepository _consultantRepository;
         private readonly IMapper _mapper;
+        public readonly IStringLocalizer _localizer;
 
 
-        public GetAllSkillerQueryHandler(ISupervisorRepository supervisorRepository, IConsultantRepository consultantRepository, IMapper mapper)
+        public GetAllSkillerQueryHandler(ISupervisorRepository supervisorRepository, IConsultantRepository consultantRepository, IMapper mapper, IStringLocalizer<GetAllSkillerQueryHandler> localizer)
         {
             _supervisorRepository=supervisorRepository;
             _consultantRepository=consultantRepository;
             _mapper=mapper;
+            _localizer=new Localizer();
         }
 
         public Task<PaginatedResult<SkillerDto>> Handle(GetAllSkillerQuery query, CancellationToken cancellationToken)
         {//change this business to fetch from user table
             PaginatedResult<SkillerDto> skillers = new();
 
-
+            var str = _localizer["UnAuthorized","Errors"];
             Expression<Func<Supervisor, bool>> filterExpressionSupervisor = null;
             Func<IQueryable<Supervisor>, IOrderedQueryable<Supervisor>> orderByExpressionSupervisor = null;
 
