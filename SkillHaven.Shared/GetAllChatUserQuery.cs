@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace SkillHaven.Shared
 {
-    public class GetAllChatUserQuery:IRequest<List<GetChatUserDto>>
+    public class GetAllChatUserQuery: PaginatedRequest,IRequest<PaginatedResult<GetChatUserDto>>
     {
+
     }
 }

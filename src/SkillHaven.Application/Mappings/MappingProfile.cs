@@ -16,12 +16,17 @@ namespace SkillHaven.Application.Mappings
             //CreateMap<GetUserQuery, UserDto>();
             //CreateMap<UserDto, GetUserQuery>();
             CreateMap<User, UserDto>().ReverseMap();
+
+            CreateMap<User, SkillerDto>().ReverseMap();
             CreateMap<Supervisor, SkillerDto>().ReverseMap();
             CreateMap<Consultant, SkillerDto>().ReverseMap();
 
             CreateMap<Blog, GetBlogsDto>().ReverseMap();
 
             CreateMap<BlogComments, BlogCommentDto>().ReverseMap();
+            CreateMap<ChatUser, GetOnlineUsersDto>().ReverseMap();
+            CreateMap<ChatUser, GetOnlineUsersDto>().ReverseMap();
+
         }
     }
 }

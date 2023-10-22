@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace SkillHaven.Shared
 {
-    public class GetAllSkillerQuery: PaginatedRequest,IRequest<PaginatedResult<SkillerDto>>
+    public class GetSkillerQuery:IRequest<SkillerDto>
     {
-        public string SearchByName { get; set; } = string.Empty;
+        public int UserId { get; set; }
     }
 }

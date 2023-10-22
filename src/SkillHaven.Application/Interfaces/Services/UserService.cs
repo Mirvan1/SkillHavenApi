@@ -55,7 +55,9 @@ namespace SkillHaven.Application.Interfaces.Services
 
         public UserDto GetUser()
         {
-            var getUserEmail = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
+            string EmailClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
+
+            var getUserEmail = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == EmailClaim).Value;
 
             var getUser = _userRepository.GetByEmail(getUserEmail);
             var userDto = _mapper.Map<UserDto>(getUser);

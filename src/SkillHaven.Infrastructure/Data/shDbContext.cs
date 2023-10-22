@@ -81,6 +81,7 @@ namespace SkillHaven.Infrastructure.Data
             builder.Property(u => u.FirstName).HasMaxLength(50);
             builder.Property(u => u.LastName).HasMaxLength(50);
             builder.Property(u => u.ProfilePicture).HasMaxLength(255);
+            builder.Property(c => c.IsDeleted).IsRequired();
 
             // Configure User-Supervisor relationship
             builder.HasOne(u => u.Supervisor)
@@ -109,7 +110,7 @@ namespace SkillHaven.Infrastructure.Data
             builder.HasKey(c => c.ConsultantId);
             builder.Property(c => c.Experience).IsRequired();
             builder.Property(c => c.Description).HasMaxLength(255);
-            builder.Property(c => c.Rating).IsRequired();
+            builder.Property(c => c.Rating);
 
             builder.HasOne(c => c.User)
          .WithOne(u => u.Consultant)
@@ -122,9 +123,9 @@ namespace SkillHaven.Infrastructure.Data
         {
             builder.ToTable("Supervisors"); // Tablo adını belirle
             builder.HasKey(s => s.SupervisorId);
-            builder.Property(s => s.Expertise).HasMaxLength(100);
+            builder.Property(s => s.Expertise).IsRequired().HasMaxLength(100);
             builder.Property(s => s.Description).HasMaxLength(255);
-            builder.Property(c => c.Rating).IsRequired();
+            builder.Property(c => c.Rating);
 
             // User ile ilişkiyi belirle
             builder.HasOne(s => s.User)

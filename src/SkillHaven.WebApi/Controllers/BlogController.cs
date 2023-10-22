@@ -9,7 +9,7 @@ namespace SkillHaven.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class BlogController : BaseController
     {
         public BlogController(IMediator mediator) : base(mediator)

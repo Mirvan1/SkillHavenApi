@@ -61,12 +61,13 @@ namespace SkillHaven.Infrastructure.Repositories
         {
             IQueryable<T> query = _dbContext.Set<T>();
 
-
-            foreach (var includeProperty in includeProperties)
+            if (includeProperties!=null)
             {
-                query = query.Include(includeProperty);
+                foreach (var includeProperty in includeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
             }
-
             if (filter != null)
             {
                 query = query.Where(filter);

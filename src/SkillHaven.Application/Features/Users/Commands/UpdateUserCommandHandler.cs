@@ -32,7 +32,7 @@ namespace SkillHaven.Application.Features.Users.Commands
 
             var user = _userRepository.GetByEmail(getUserEmail);
 
-            if (user is null) throw new DatabaseValidationException("User not found");
+            if (user is null  || user is { IsDeleted: true }) throw new DatabaseValidationException("User not found");
 
             user.Email=request.Email;
             user.FirstName =request.FirstName;

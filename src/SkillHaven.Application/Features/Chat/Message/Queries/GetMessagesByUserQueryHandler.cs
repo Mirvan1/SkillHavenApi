@@ -32,7 +32,7 @@ namespace SkillHaven.Application.Features.Chat.Message.Queries
 
         public Task<PaginatedResult<GetMessagesByUserDto>> Handle(GetMessagesByUserQuery request, CancellationToken cancellationToken)
         {
-            //if (!_userService.isUserAuthenticated()) throw new UserVerifyException("User is not authorize");
+            if (!_userService.isUserAuthenticated()) throw new UserVerifyException("User is not authorize");
 
 
             var getUser = _userService.GetUser();

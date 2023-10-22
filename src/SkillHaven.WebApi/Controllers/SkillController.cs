@@ -9,7 +9,7 @@ namespace SkillHaven.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class SkillController : BaseController
     {
         public SkillController(IMediator mediator) : base(mediator)
@@ -27,8 +27,8 @@ namespace SkillHaven.WebApi.Controllers
 
 
 
-        [HttpGet("GetSupervisor")]
-        public async Task<IActionResult> GetSupervisor([FromQuery]GetSupervisorsQuery query)
+        [HttpGet("GetSupervisors")]
+        public async Task<IActionResult> GetSupervisors([FromQuery]GetSupervisorsQuery query)
         {
             var getAll = await _mediator.Send(query);
 
@@ -44,7 +44,11 @@ namespace SkillHaven.WebApi.Controllers
             return Ok(getAll);
         }
 
-
+        [HttpGet("GetSkiller/{UserId}")]
+        public async Task<IActionResult> GetSkiller(int UserId)
+        {
+            return Ok(await _mediator.Send(new GetSkillerQuery() { UserId=UserId }));
+        }
 
     }
 }

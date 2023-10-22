@@ -25,17 +25,27 @@ namespace SkillHaven.WebApi.Controllers
 
 
         [HttpGet("GetAllChatUser")]
-        public IActionResult GetAllChatUser()
+        public async Task<IActionResult> GetAllChatUser([FromQuery] GetAllChatUserQuery query)
         {
-            return null;
+            var getAllChatUser = await _mediator.Send(query);
+            return Ok(getAllChatUser);
         }
 
         [HttpGet("GetOnlineUsers")]
-        public IActionResult GetOnlineUsers()
+        public async Task<IActionResult> GetOnlineUsers([FromQuery] GetOnlineUsersQuery query)
         {
-            return null;
+            var getOnlineUsers = await _mediator.Send(query);
+            return Ok(getOnlineUsers);
         }
 
+
+        [HttpGet("GetChatUser/{UserId}")]
+        public async Task<IActionResult> GetChatUser(int UserId)
+        {
+            GetChatUserQuery query = new() { UserId=UserId };
+            var getChatUser = await _mediator.Send(query);
+            return Ok(getChatUser);
+        }
 
 
     }

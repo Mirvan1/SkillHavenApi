@@ -6,6 +6,7 @@ using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Shared;
+using SkillHaven.Shared.Exceptions;
 using SkillHaven.Shared.Infrastructure.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,8 @@ namespace SkillHaven.Application.Features.Users.Commands
         public Task<string> Handle(LoginUserCommand request, CancellationToken cancellationToken)
         {
             var user = _userRepository.GetByEmail(request.Email);//getbyemail ++
+
+            if (user==null  || user is { IsDeleted: true })  throw new UserVerifyException("User cannot find");
 
             bool passwordValidation = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
 

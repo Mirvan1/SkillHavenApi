@@ -214,6 +214,18 @@ namespace SkillHaven.WebApi.Hubs
                     _chatUserRepository.Add(newChatUser);
                     _chatUserRepository.SaveChanges();
                 }
+                else
+                {
+
+                    if (checkChatUser.Status==ChatUserStatus.Offline.ToString())
+                    {
+                        checkChatUser.LastSeen=DateTime.Now;    
+                        checkChatUser.Status=ChatUserStatus.Online.ToString();
+                        _chatUserRepository.Update(checkChatUser);
+                        _chatUserRepository.SaveChanges();
+                    }
+                }
+
 
                 bool checkConnections = _userConnectionRepo.CheckUserConnected(currentUser.UserId, connectionId);
 

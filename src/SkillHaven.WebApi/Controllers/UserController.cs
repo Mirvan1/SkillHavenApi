@@ -74,6 +74,14 @@ namespace SkillHaven.WebApi.Controllers
         }
 
 
+        [HttpDelete("{UserId}")]
+        public async Task<IActionResult> DeleteUser(int UserId)
+        {
+            var result = await _mediator.Send(new DeleteUserCommand() { UserId=UserId });
+            return Ok(result);
+        }
+
+
         [HttpPost("login"),AllowAnonymous]
         public async Task<IActionResult> UserLogin(LoginUserCommand command)
         {
