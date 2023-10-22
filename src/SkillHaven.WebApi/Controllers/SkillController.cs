@@ -16,10 +16,9 @@ namespace SkillHaven.WebApi.Controllers
         {
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("GetAllSkiller")]
+        public async Task<IActionResult> GetAll([FromQuery] GetAllSkillerQuery query)
         {
-            var query = new GetAllSkillerQuery();
             var getAll = await _mediator.Send(query);
 
             return Ok(getAll);

@@ -27,6 +27,29 @@ namespace SkillHaven.Infrastructure.Repositories
             return _dbContext.Set<T>().Find(id);
         }
 
+        public virtual T GetById(int id, params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = _dbContext.Set<T>();
+
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+
+            var entity = _dbContext.Model.FindEntityType(typeof(T));
+            var keyName = entity.FindPrimaryKey().Properties.Select(x => x.Name).Single();
+
+            // Create a lambda to match on primary key
+            var parameter = Expression.Parameter(typeof(T), "e");
+            var property = Expression.Property(parameter, keyName);
+            var constant = Expression.Constant(id);
+            var equality = Expression.Equal(property, constant);
+            var lambda = Expression.Lambda<Func<T, bool>>(equality, parameter);
+
+            return query.FirstOrDefault(lambda);
+        }
+
+
         public virtual IEnumerable<T> GetAll()
         {
             return _dbContext.Set<T>().ToList();

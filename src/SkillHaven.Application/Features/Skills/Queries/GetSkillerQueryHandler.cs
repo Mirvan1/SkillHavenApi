@@ -33,31 +33,30 @@ namespace SkillHaven.Application.Features.Skills.Queries
         {
             if (!_userService.isUserAuthenticated()) throw new UserVerifyException("User do not authenticate");
 
-            var getUser = _userRepository.GetById(request.UserId);
+            var getUser = _userRepository.GetById(request.UserId, x => x.Supervisor, y => y.Consultant);
             if (getUser is null) throw new ArgumentNullException("User cannot find");
 
             if (getUser.Role==Role.User.ToString() || getUser.Role==Role.Admin.ToString()) throw new UnauthorizedAccessException("The user don t have any skill");
 
-           // var user = _mapper.Map<SkillerDto>(getUser);
+            // var user = _mapper.Map<SkillerDto>(getUser);
             SkillerDto getSkiller = new()
             {
                 role=(Role)Enum.Parse(typeof(Role), getUser.Role, true),
                 Email=getUser.Email,
                 FullName=getUser.FirstName+" "+getUser.LastName,
-              //  Experience=getUser.Role==Role.Consultant.ToString()?getUser.Consultant.Experience:0,
-                //SupervisorDescription=getUser.Role==Role.Supervisor.ToString() ? getUser.Supervisor.Description : null,
-                //SupervisorExpertise=getUser.Role==Role.Supervisor.ToString() ? getUser.Supervisor.Description : null,
-              
+                Experience=getUser.Role==Role.Consultant.ToString() ? getUser.Consultant.Experience : 0,
+                SupervisorDescription=getUser.Role==Role.Supervisor.ToString() ? getUser.Supervisor.Description : null,
+                SupervisorExpertise=getUser.Role==Role.Supervisor.ToString() ? getUser.Supervisor.Description : null,
+
             };
 
-            if(getUser.Role==Role.Supervisor.ToString())
+            if (getUser.Role==Role.Supervisor.ToString())
             {
-                //getSkiller.Rating=getUser.Supervisor.Rating;
+                getSkiller.Rating=getUser.Supervisor.Rating;
             }
-
             if (getUser.Role==Role.Consultant.ToString())
             {
-                //getSkiller.Rating=getUser.Consultant.Rating;
+                getSkiller.Rating=getUser.Consultant.Rating;
             }
 
             return Task.FromResult(getSkiller);

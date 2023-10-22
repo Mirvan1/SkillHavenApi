@@ -11,6 +11,7 @@ namespace SkillHaven.Application.Interfaces.Repositories
     public interface IRepository<T> where T : class
     {
         T GetById(int id);
+        T GetById(int id, params Expression<Func<T, object>>[] includeProperties);
         IEnumerable<T> GetAll();
         IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
         void Add(T entity);

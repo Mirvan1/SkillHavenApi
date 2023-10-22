@@ -39,7 +39,7 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
             Expression<Func<SkillHaven.Domain.Entities.ChatUser, bool>> filterExpression = entity => entity.Status==ChatUserStatus.Online.ToString();
             Func<IQueryable<SkillHaven.Domain.Entities.ChatUser>, IOrderedQueryable<SkillHaven.Domain.Entities.ChatUser>> orderByExpression = null;
 
-            var dbResult = _chatUserRepository.GetPaged(request.Page, request.PageSize, request.OrderByPropertname, request.OrderBy, null, null);
+            var dbResult = _chatUserRepository.GetPaged(request.Page, request.PageSize, request.OrderByPropertname, request.OrderBy, filterExpression, null);
 
             PaginatedResult<GetOnlineUsersDto> paginatedResult = new()
             {

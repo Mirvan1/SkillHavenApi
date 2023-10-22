@@ -28,7 +28,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
         }
 
         public Task<PaginatedResult<SkillerDto>> Handle(GetAllSkillerQuery query, CancellationToken cancellationToken)
-        {
+        {//change this business to fetch from user table
             PaginatedResult<SkillerDto> skillers = new();
 
 
@@ -49,7 +49,21 @@ namespace SkillHaven.Application.Features.Skills.Queries
 
             if (dbResultSupervisor is not null)
             {
-                skillers.Data.AddRange(_mapper.Map<List<SkillerDto>>(dbResultSupervisor));
+                //skillers.Data.AddRange(_mapper.Map<List<SkillerDto>>(dbResultSupervisor.Data));
+                foreach( var skiller in dbResultSupervisor.Data)
+                {
+                    SkillerDto skillerDto = new()
+                    {
+                        FullName=skiller.User.FirstName+" "+skiller.User.LastName,
+                        role=(Role)Enum.Parse(typeof(Role), skiller.User.Role, true),
+                        Email=skiller.User.Email,
+                        ProfilePicture=skiller.User.ProfilePicture,
+                        SupervisorDescription=skiller.Description,
+                        SupervisorExpertise=skiller.Expertise,
+                        Rating=skiller.Rating
+                    };
+                    skillers.Data.Add(skillerDto);
+                }
                 skillers.TotalCount=dbResultSupervisor.TotalCount;
                 skillers.TotalPages=dbResultSupervisor.TotalPages;
             }
@@ -79,7 +93,20 @@ namespace SkillHaven.Application.Features.Skills.Queries
             var dbResultConsultancy = _consultantRepository.GetPaged(query.Page, query.PageSize / 2, query.OrderByPropertname, query.OrderBy, filterExpressionConsultant, includePropertiesConsultant);
             if (dbResultConsultancy is not null)
             {
-                skillers.Data.AddRange(_mapper.Map<List<SkillerDto>>(dbResultConsultancy));
+                 foreach( var skiller in dbResultConsultancy.Data)
+                {
+                    var skillerDto = new SkillerDto()
+                    {
+                        FullName=skiller.User.FirstName+" "+skiller.User.LastName,
+                        role=(Role)Enum.Parse(typeof(Role), skiller.User.Role, true),
+                        Email=skiller.User.Email,
+                        ProfilePicture=skiller.User.ProfilePicture,
+                        Experience=skiller.Experience,
+                        Rating=skiller.Rating,
+                        Description=skiller.Description
+                    };
+                    skillers.Data.Add(skillerDto);
+                }
                 skillers.TotalCount+=dbResultConsultancy.TotalCount;
                 skillers.TotalPages+=dbResultConsultancy.TotalPages;
             }

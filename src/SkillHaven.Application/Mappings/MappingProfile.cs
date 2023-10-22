@@ -25,7 +25,7 @@ namespace SkillHaven.Application.Mappings
 
             CreateMap<BlogComments, BlogCommentDto>().ReverseMap();
             CreateMap<ChatUser, GetOnlineUsersDto>().ReverseMap();
-            CreateMap<ChatUser, GetOnlineUsersDto>().ReverseMap();
+            CreateMap<ChatUser, GetChatUserDto>().ReverseMap();
 
         }
     }
