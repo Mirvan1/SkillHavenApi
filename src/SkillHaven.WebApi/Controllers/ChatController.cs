@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SkillHaven.Shared;
+using SkillHaven.Shared.Chat;
 
 namespace SkillHaven.WebApi.Controllers
 {

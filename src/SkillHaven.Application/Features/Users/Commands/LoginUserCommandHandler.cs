@@ -1,13 +1,15 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
-using SkillHaven.Shared;
 using SkillHaven.Shared.Exceptions;
 using SkillHaven.Shared.Infrastructure.Exceptions;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -25,7 +27,7 @@ namespace SkillHaven.Application.Features.Users.Commands
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         public readonly IUserService _userService;
-
+        private readonly IStringLocalizer _localizer;
  
 
         public LoginUserCommandHandler(IUserRepository userRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IUserService userService)
@@ -34,6 +36,7 @@ namespace SkillHaven.Application.Features.Users.Commands
             _configuration = configuration;
             _httpContextAccessor=httpContextAccessor;
             _userService=userService;
+            _localizer=new Localizer();
         }
 
         public Task<string> Handle(LoginUserCommand request, CancellationToken cancellationToken)
@@ -48,7 +51,7 @@ namespace SkillHaven.Application.Features.Users.Commands
                 throw new DatabaseValidationException("Password is wrong");
 
             if (!user.Email.Equals(request.Email))
-                throw new DatabaseValidationException("Email cannot found");
+                throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Email"].Value);
           
  
             return Task.FromResult(_userService.CreateToken(user));

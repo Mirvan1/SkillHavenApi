@@ -1,8 +1,12 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Localization;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Shared;
+using SkillHaven.Shared.Chat;
 using SkillHaven.Shared.Exceptions;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,17 +21,20 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
         private readonly IChatUserRepository _chatUserRepository;
         private readonly IUserService _userService;
         private readonly IUserConnectionRepository _userConnectionRepository;
+        public readonly IStringLocalizer _localizer;
 
         public GetAllChatUserQueryHandler(IUserConnectionRepository userConnectionRepository, IUserService userService, IChatUserRepository chatUserRepository)
         {
             _userConnectionRepository=userConnectionRepository;
             _userService=userService;
             _chatUserRepository=chatUserRepository;
+            _localizer=new Localizer();
+
         }
 
         public Task<PaginatedResult<GetChatUserDto>> Handle(GetAllChatUserQuery request, CancellationToken cancellationToken)
         {
-           // if (!_userService.isUserAuthenticated()) throw new UserVerifyException("User is not authorize");
+            if (_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
 
             var getUser = _userService.GetUser();

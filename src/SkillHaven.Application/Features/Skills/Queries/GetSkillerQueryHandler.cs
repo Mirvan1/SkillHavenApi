@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Localization;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
-using SkillHaven.Shared;
 using SkillHaven.Shared.Exceptions;
+using SkillHaven.Shared.Skill;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +22,8 @@ namespace SkillHaven.Application.Features.Skills.Queries
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly IUserRepository _userRepository;
+        public readonly IStringLocalizer _localizer;
+
 
         public GetSkillerQueryHandler(ISupervisorRepository supervisorRepository, IConsultantRepository consultantRepository, IMapper mapper, IUserService userService, IUserRepository userRepository)
         {
@@ -27,11 +32,13 @@ namespace SkillHaven.Application.Features.Skills.Queries
             _mapper=mapper;
             _userService=userService;
             _userRepository=userRepository;
+            _localizer=new Localizer();
+
         }
 
         public Task<SkillerDto> Handle(GetSkillerQuery request, CancellationToken cancellationToken)
         {
-            if (!_userService.isUserAuthenticated()) throw new UserVerifyException("User do not authenticate");
+            if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
             var getUser = _userRepository.GetById(request.UserId, x => x.Supervisor, y => y.Consultant);
             if (getUser is null) throw new ArgumentNullException("User cannot find");

@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
-using SkillHaven.Shared;
 using SkillHaven.Shared.Exceptions;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;

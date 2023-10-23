@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Domain.Entities;
-using SkillHaven.Shared;
 using SkillHaven.Shared.Infrastructure.Exceptions;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -18,12 +20,12 @@ namespace SkillHaven.Application.Features.Users.Commands
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
-
+        private readonly IStringLocalizer _localizer;
         public RegisterUserCommandHandler(IUserRepository userRepository, IConfiguration configuration)
         {
             _userRepository=userRepository;
             _configuration = configuration;
-
+            _localizer=new Localizer();
         }
 
         public Task<bool> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -31,7 +33,7 @@ namespace SkillHaven.Application.Features.Users.Commands
             var checkEmail = _userRepository.GetByEmail(request.Email);//buraya get by email eklenecek;
 
             if (checkEmail is not null)
-                throw new DatabaseValidationException("This email already registered");
+                throw new DatabaseValidationException(_localizer["Conflict", "Errors", "Email"].Value);
 
             if (!string.IsNullOrEmpty(request.Password))
                 request.Password=BCrypt.Net.BCrypt.HashPassword(request.Password);

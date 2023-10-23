@@ -1,11 +1,13 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
-using SkillHaven.Shared;
 using SkillHaven.Shared.Infrastructure.Exceptions;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -22,12 +24,14 @@ namespace SkillHaven.Application.Features.Users.Commands
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserService _userService;
+        private readonly IStringLocalizer _localizer;
         public AuthUserCommandHandler(IUserRepository userRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor,IUserService userService)
         {
             _userRepository=userRepository;
             _configuration=configuration;
             _httpContextAccessor=httpContextAccessor;
             _userService=userService;
+            _localizer=new Localizer();
         }
 
         public Task<string> Handle(AuthUserCommand request, CancellationToken cancellationToken)
@@ -61,7 +65,7 @@ namespace SkillHaven.Application.Features.Users.Commands
 
             var getUser = _userRepository.GetByEmail(emailClaim.Value);
 
-            if (getUser is null) throw new DatabaseValidationException("User cannot found");
+            if (getUser is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User"].Value);
 
 
             return Task.FromResult(_userService.CreateToken(getUser));

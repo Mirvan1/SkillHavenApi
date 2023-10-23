@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Localization;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Domain.Entities;
-using SkillHaven.Shared;
 using SkillHaven.Shared.Infrastructure.Exceptions;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +18,12 @@ namespace SkillHaven.Application.Features.Users.Queries
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-
+        private readonly IStringLocalizer _localizer;
         public GetUserQueryHandler(IUserRepository  userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _localizer=new Localizer();
         }
 
         public async Task<UserDto> Handle(GetUserQuery request, CancellationToken cancellationToken)
@@ -28,7 +31,7 @@ namespace SkillHaven.Application.Features.Users.Queries
             var user =  _userRepository.GetById(request.UserId);
 
             if (user == null)
-                throw new DatabaseValidationException("User cannot found");
+                throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User"].Value);
 
             var userDto = _mapper.Map< UserDto>(user);
 

@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Localization;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Shared;
+using SkillHaven.Shared.Blog;
+using SkillHaven.Shared.Exceptions;
 using SkillHaven.Shared.Infrastructure.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -21,6 +25,7 @@ namespace SkillHaven.Application.Features.Blogs.Queries
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
+        public readonly IStringLocalizer _localizer;
         public BlogByCommentsQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IBlogCommentRepository blogCommentRepository)
         {
             _httpContextAccessor=httpContextAccessor;
@@ -28,15 +33,16 @@ namespace SkillHaven.Application.Features.Blogs.Queries
             _mapper=mapper;
             _blogRepository=blogRepository;
             _blogCommentRepository=blogCommentRepository;
+            _localizer=new Localizer();
         }
 
         public Task<PaginatedResult<BlogCommentDto>> Handle(BlogByCommentsQuery request, CancellationToken cancellationToken)
         {
-          //  if (!_userService.isUserAuthenticated()) throw new DatabaseValidationException("User cannot found");
+            if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
-            var blogComments = _blogCommentRepository.getCommentsByBlog(request.BlogId,request.Page,request.PageSize,request.OrderBy,request.OrderByPropertname);
+            var blogComments = _blogCommentRepository.getCommentsByBlog(request.BlogId, request.Page, request.PageSize, request.OrderBy, request.OrderByPropertname);
 
-            if (blogComments is null) throw new DatabaseValidationException("There are no comment found for this blog");
+            if (blogComments is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Blog Comment"].Value);
 
             PaginatedResult<BlogCommentDto> result = new()
             {

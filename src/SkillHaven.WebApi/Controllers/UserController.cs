@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Domain.Entities;
-using SkillHaven.Shared;
+using SkillHaven.Shared.User;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;

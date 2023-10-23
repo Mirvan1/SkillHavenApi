@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Domain.Entities;
-using SkillHaven.Shared;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;

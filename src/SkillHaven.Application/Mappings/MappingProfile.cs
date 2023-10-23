@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using SkillHaven.Domain.Entities;
-using SkillHaven.Shared;
+using SkillHaven.Shared.Blog;
+using SkillHaven.Shared.Chat;
+using SkillHaven.Shared.Skill;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;

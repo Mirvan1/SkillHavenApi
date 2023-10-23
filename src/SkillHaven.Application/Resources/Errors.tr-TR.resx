@@ -117,7 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BadRequest" xml:space="preserve">
+    <value>{0} için talep formatı geçersiz. Lütfen doğru formatı kullandığınızdan emin olun.</value>
+  </data>
+  <data name="Conflict" xml:space="preserve">
+    <value>{0} kaynağı ile kaynak çakışması oluştu. Zaten var olabilir ya da kilitli olabilir.</value>
+  </data>
+  <data name="Forbidden" xml:space="preserve">
+    <value>{0} erişim izniniz yok. Lütfen izinlerinizi kontrol edin.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Serverda {0} işlenirken beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.</value>
+  </data>
+  <data name="InvalidDataType" xml:space="preserve">
+    <value>{0} için sağlanan veri geçersiz. Beklenen veri türü: {1}.</value>
+  </data>
+  <data name="MethodNotAllowed" xml:space="preserve">
+    <value>{0} yöntemi bu uç nokta için izin verilmiyor. Yerine {1} kullanmayı deneyin.</value>
+  </data>
+  <data name="NotAcceptable" xml:space="preserve">
+    <value>İstenen format {0} kabul edilemez. Lütfen desteklenen formatlardan birini kullanın.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Belirtilen {0} kaynağı bulunamadı. Kaynağın var olduğundan emin olun.</value>
+  </data>
+  <data name="NotNull" xml:space="preserve">
+    <value>{0} boş olamaz.</value>
+  </data>
+  <data name="NotNull2" xml:space="preserve">
+    <value>{0} alanı boş olamaz. Lütfen geçerli bir değer sağlayın.</value>
+  </data>
+  <data name="RangeError" xml:space="preserve">
+    <value>{0} değeri {1} ile {2} arasında olmalıdır.</value>
+  </data>
   <data name="UnAuthorized" xml:space="preserve">
-    <value>Yetkisiz Erisim</value>
+    <value>Yetkisiz erişim.</value>
+  </data>
+  <data name="UnAuthorized2" xml:space="preserve">
+    <value>{0} kaynağına yetkisiz erişim. Lütfen doğru kimlik bilgilerinizi kullandığınızdan emin olun.</value>
   </data>
 </root>

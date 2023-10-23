@@ -1,9 +1,13 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Localization;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Shared;
+using SkillHaven.Shared.Chat;
 using SkillHaven.Shared.Exceptions;
+using SkillHaven.Shared.Infrastructure.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +23,8 @@ namespace SkillHaven.Application.Features.Chat.Message.Queries
         public readonly IChatUserRepository _chatUserRepository;
         public readonly IUserService _userService;
         public readonly IUserConnectionRepository _chatUserConnectionRepository;
+        public readonly IStringLocalizer _localizer;
+
 
         public GetMessagesByUserQueryHandler(IMessageRepository messageRepository, IChatUserRepository chatUserRepository, IUserService userService, IUserConnectionRepository chatUserConnectionRepository)
         {
@@ -26,30 +32,32 @@ namespace SkillHaven.Application.Features.Chat.Message.Queries
             _chatUserRepository=chatUserRepository;
             _userService=userService;
             _chatUserConnectionRepository=chatUserConnectionRepository;
+            _localizer=new Localizer();
+
         }
 
 
 
         public Task<PaginatedResult<GetMessagesByUserDto>> Handle(GetMessagesByUserQuery request, CancellationToken cancellationToken)
         {
-            if (!_userService.isUserAuthenticated()) throw new UserVerifyException("User is not authorize");
+            if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
 
             var getUser = _userService.GetUser();
 
-            if (getUser is null) throw new UnauthorizedAccessException("Sonething wrong in authorize");
+            if (getUser is null) throw new UserVerifyException("Sonething wrong in authorize");
 
             var getChatUser = _chatUserRepository.getByUserId(getUser.UserId);
 
-            if (getUser is null) throw new AccessViolationException("User did not have chat history");
+            if (getUser is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Chat User History"].Value);
 
             var getSenderConnection = _chatUserConnectionRepository.GetByUserId(getChatUser.Id);
 
-            if (getSenderConnection is null) throw new ArgumentNullException("User is not connected to chathub");
+            if (getSenderConnection is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User Chat Hub"].Value);
 
             var getReceviderChatUser= _chatUserRepository.getByUserId(request.ReceiverUserId);
 
-            if (getSenderConnection is null) throw new ArgumentNullException("User is not connected to chathub");
+            if (getSenderConnection is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User Chat Hub"].Value);
 
 
 
@@ -71,7 +79,7 @@ namespace SkillHaven.Application.Features.Chat.Message.Queries
            // var getMessages = _messageRepository.GetMessagesBySender(getChatUser.Id);
             var getMessages = _messageRepository.GetPaged(request.Page, request.PageSize, request.OrderByPropertname, request.OrderBy, filterExpression, includeProperties);
 
-            if (getMessages is null) throw new ArgumentNullException("Message cannot find");
+            if (getMessages is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Messages"].Value);
 
             PaginatedResult<GetMessagesByUserDto> result = new()
             {

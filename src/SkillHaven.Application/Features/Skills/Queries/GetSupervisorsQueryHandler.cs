@@ -1,11 +1,15 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Localization;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Shared;
 using SkillHaven.Shared.Exceptions;
+using SkillHaven.Shared.Skill;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,15 +23,17 @@ namespace SkillHaven.Application.Features.Skills.Queries
     public class GetSupervisorsQueryHandler : IRequestHandler<GetSupervisorsQuery, PaginatedResult<SkillerDto>>
     {
         private readonly ISupervisorRepository _supervisorRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
-        public GetSupervisorsQueryHandler(ISupervisorRepository supervisorRepository, IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper)
+        public readonly IStringLocalizer _localizer;
+
+        public GetSupervisorsQueryHandler(ISupervisorRepository supervisorRepository, IUserService userService, IMapper mapper)
         {
             _supervisorRepository=supervisorRepository;
-            _httpContextAccessor=httpContextAccessor;
             _userService=userService;
             _mapper=mapper;
+            _localizer=new Localizer();
+
         }
 
 
@@ -38,7 +44,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
             Expression<Func<Supervisor, bool>> filterExpression = null;
             Func<IQueryable<Supervisor>, IOrderedQueryable<Supervisor>> orderByExpression = null;
 
-            if (!_userService.isUserAuthenticated()) throw new UserVerifyException("User is not authorize");
+            if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
 
             if (!string.IsNullOrEmpty(request.Filter))

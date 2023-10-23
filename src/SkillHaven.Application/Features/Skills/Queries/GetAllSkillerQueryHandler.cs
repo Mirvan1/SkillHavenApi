@@ -6,6 +6,8 @@ using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Shared;
 using SkillHaven.Shared.Infrastructure.Exceptions;
+using SkillHaven.Shared.Skill;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;

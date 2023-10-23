@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Localization;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
-using SkillHaven.Shared;
+using SkillHaven.Shared.Blog;
+using SkillHaven.Shared.Exceptions;
 using SkillHaven.Shared.Infrastructure.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -21,6 +24,8 @@ namespace SkillHaven.Application.Features.Blogs.Command
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
+        public readonly IStringLocalizer _localizer;
+
         public DeleteBlogCommentCommandHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IBlogCommentRepository blogCommentRepository)
         {
             _httpContextAccessor=httpContextAccessor;
@@ -28,11 +33,15 @@ namespace SkillHaven.Application.Features.Blogs.Command
             _mapper=mapper;
             _blogRepository=blogRepository;
             _blogCommentRepository=blogCommentRepository;
+            _localizer=new Localizer();
         }
         public Task<bool> Handle(DeleteBlogCommentCommand request, CancellationToken cancellationToken)
         {
+
+            if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
+
             var blogComment = _blogCommentRepository.GetById(request.BlogCommentId);
-            if (blogComment is null) throw new DatabaseValidationException("Cannot find comment");
+            if (blogComment is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors","Comment"].Value);
 
             blogComment.isPublished=false;
 

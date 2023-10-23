@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SkillHaven.Shared;
+using SkillHaven.Shared.Blog;
+using SkillHaven.Shared.User;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SkillHaven.WebApi.Controllers

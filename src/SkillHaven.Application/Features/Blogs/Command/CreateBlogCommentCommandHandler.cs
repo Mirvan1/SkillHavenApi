@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Localization;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
-using SkillHaven.Shared;
+using SkillHaven.Shared.Blog;
+using SkillHaven.Shared.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +24,8 @@ namespace SkillHaven.Application.Features.Blogs.Command
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
+        public readonly IStringLocalizer _localizer;
+
         public CreateBlogCommentCommandHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IBlogCommentRepository blogCommentRepository)
         {
             _httpContextAccessor=httpContextAccessor;
@@ -28,10 +33,12 @@ namespace SkillHaven.Application.Features.Blogs.Command
             _mapper=mapper;
             _blogRepository=blogRepository;
             _blogCommentRepository=blogCommentRepository;
+            _localizer=new Localizer();
+
         }
         public Task<bool> Handle(CreateBlogCommentCommand request, CancellationToken cancellationToken)
         {
-            // if (!_userService.isUserAuthenticated()) throw new UserVerifyException("User is not authorize");
+             if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
             var addComment = new BlogComments()
             {

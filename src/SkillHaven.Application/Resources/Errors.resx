@@ -117,7 +117,40 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BadRequest" xml:space="preserve">
+    <value>The request format for {0} is invalid. Please ensure you are using the correct format.</value>
+  </data>
+  <data name="Conflict" xml:space="preserve">
+    <value>Resource conflict occurred with resource {0}. It might already exist or be locked.</value>
+  </data>
+  <data name="Forbidden" xml:space="preserve">
+    <value>You don't have permission to access {0}. Please check your permissions.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>An unexpected error occurred on the server while processing {0}. Please try again later.</value>
+  </data>
+  <data name="InvalidDataType" xml:space="preserve">
+    <value>The provided data for {0} is invalid. Expected data type: {1}.</value>
+  </data>
+  <data name="MethodNotAllowed" xml:space="preserve">
+    <value>The {0} method is not allowed for this endpoint. Try using {1} instead.</value>
+  </data>
+  <data name="NotAcceptable" xml:space="preserve">
+    <value>The requested format {0} is not acceptable. Please use one of the supported formats.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>The specified resource {0} was not found. Ensure the resource exists.</value>
+  </data>
+  <data name="NotNull" xml:space="preserve">
+    <value>{0} cannot be null </value>
+  </data>
+  <data name="NotNull2" xml:space="preserve">
+    <value>The field {0} cannot be null. Please provide a valid value.</value>
+  </data>
+  <data name="RangeError" xml:space="preserve">
+    <value>The value for {0} should be between {1} and {2}.</value>
+  </data>
   <data name="UnAuthorized" xml:space="preserve">
-    <value>Unauthrized access</value>
+    <value>Unauthorized access to resource {0}. Please ensure you have the right credentials.</value>
   </data>
 </root>

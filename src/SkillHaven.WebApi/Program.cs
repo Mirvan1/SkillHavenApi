@@ -166,6 +166,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors("CorsPolicy");
 var localizeOptions = app.Services.GetService<IOptions<RequestLocalizationOptions>>();
 app.UseRequestLocalization(localizeOptions.Value);
+
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.UseRouting();  
 
 app.UseHttpsRedirection();
