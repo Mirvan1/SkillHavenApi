@@ -1,4 +1,5 @@
-﻿using SkillHaven.Shared.Exceptions;
+﻿using SkillHaven.Application.Interfaces.Services;
+using SkillHaven.Shared.Exceptions;
 using System.Net;
 
 namespace SkillHaven.WebApi.Extensions;
@@ -6,12 +7,12 @@ namespace SkillHaven.WebApi.Extensions;
 public class ExceptionMiddleware
 {
     private readonly RequestDelegate _next;
-    //private readonly ILoggerManager _logger;
-    public ExceptionMiddleware(RequestDelegate next)
-        //, ILoggerManager logger)
+    private readonly ILoggerService<ExceptionMiddleware> _logger;
+    public ExceptionMiddleware(RequestDelegate next
+        , ILoggerService<ExceptionMiddleware> logger)
     {
-      //  _logger = logger;
         _next = next;
+        _logger=logger;
     }
     public async Task InvokeAsync(HttpContext httpContext)
     {
@@ -21,7 +22,7 @@ public class ExceptionMiddleware
         }
         catch (Exception ex)
         {
-        //    _logger.LogError($"Something went wrong: {ex}");
+          _logger.LogError($"Something went wrong: {ex}");
             await HandleExceptionAsync(httpContext, ex);
         }
     }

@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+
 using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
@@ -28,15 +30,17 @@ namespace SkillHaven.Application.Features.Users.Commands
         private readonly IHttpContextAccessor _httpContextAccessor;
         public readonly IUserService _userService;
         private readonly IStringLocalizer _localizer;
- 
+        private readonly ILoggerService<LoginUserCommandHandler> _logger;
 
-        public LoginUserCommandHandler(IUserRepository userRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IUserService userService)
+
+        public LoginUserCommandHandler(IUserRepository userRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IUserService userService, ILoggerService<LoginUserCommandHandler> logger)
         {
             _userRepository=userRepository;
             _configuration = configuration;
             _httpContextAccessor=httpContextAccessor;
             _userService=userService;
             _localizer=new Localizer();
+            _logger=logger;
         }
 
         public Task<string> Handle(LoginUserCommand request, CancellationToken cancellationToken)
@@ -52,8 +56,8 @@ namespace SkillHaven.Application.Features.Users.Commands
 
             if (!user.Email.Equals(request.Email))
                 throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Email"].Value);
-          
- 
+
+            _logger.LogError($"{user.Email} is succesful+++ly logged in at {DateTime.Now}");
             return Task.FromResult(_userService.CreateToken(user));
         }
     

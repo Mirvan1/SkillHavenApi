@@ -6,10 +6,15 @@ using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NLog;
+using NLog.Extensions.Logging;
+using NLog.Web;
 using SkillHaven.Application.Features.Users.Queries;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
@@ -41,8 +46,21 @@ var configuration = new ConfigurationBuilder()
     .Build();
 var connStr=configuration.GetConnectionString("DefaultConnection");
 
+
+var logger = NLog.LogManager.Setup().LoadConfigurationFromFile("nlog.config").GetCurrentClassLogger();
+
+logger.Error("ssss");
+builder.Host.UseNLog();
+builder.Logging.ClearProviders();
+builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+builder.Logging.AddNLog();
+
+
+
+
 builder.Services.AddDbContext<shDbContext>(options =>
-              options.UseSqlServer("Data Source=DESKTOP-HGKR5P9\\MSSQLSERVERDB;Initial Catalog=SkillHavenDB;Integrated Security=True;Encrypt=false;"));
+              options.UseSqlServer("Data Source=DESKTOP-HGKR5P9\\MSSQLSERVERDB;Initial Catalog=SkillHavenDB;Integrated Security=True;Encrypt=false;")
+              .LogTo(logger.Warn,Microsoft.Extensions.Logging.LogLevel.Warning));
 var assm = Assembly.GetExecutingAssembly();
 
 
@@ -59,6 +77,9 @@ builder.Services.AddScoped<IBlogCommentRepository, BlogCommentRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IChatUserRepository, ChatUserRepository>();
 builder.Services.AddScoped<IUserConnectionRepository, ChatUserConnectionRepository>();
+
+builder.Services.AddTransient(typeof(ILoggerService<>), typeof(LoggerService<>));//init only once 
+
 //builder.Services.AddScoped<IStringLocalizer>(sp => new Localizer("Errors"));
 
 
@@ -155,7 +176,15 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.AddSignalR();
 
 
+
+//var logger = NLog.LogManager.Setup().LoadConfigurationFromXml("nlog.config").GetCurrentClassLogger();
+
+
 var app = builder.Build();
+
+using var serviceScope = app.Services.CreateScope();
+var logger2 = serviceScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+logger2.LogInformation("This should log from the Program class.");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
