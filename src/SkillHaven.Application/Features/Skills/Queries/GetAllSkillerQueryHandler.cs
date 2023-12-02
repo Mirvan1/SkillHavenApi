@@ -66,7 +66,8 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         ProfilePicture=skiller.User.ProfilePicture,
                         SupervisorDescription=skiller.Description,
                         SupervisorExpertise=skiller.Expertise,
-                        Rating=skiller.Rating
+                        Rating=skiller.Rating,
+                        Description=skiller.Description
                     };
                     skillers.Data.Add(skillerDto);
                 }

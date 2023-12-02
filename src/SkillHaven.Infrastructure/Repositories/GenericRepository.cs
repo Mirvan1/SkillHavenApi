@@ -102,7 +102,9 @@ namespace SkillHaven.Infrastructure.Repositories
                 var propertyInfo = typeof(T).GetProperty(orderByPropertyName);
                 var parameter = Expression.Parameter(typeof(T), "x");
                 var property = Expression.Property(parameter, orderByPropertyName);
-                var lambda = Expression.Lambda<Func<T, object>>(property, parameter);//todo:object may give error
+                Expression conversion = Expression.Convert(property, typeof(Object));
+
+                var lambda = Expression.Lambda<Func<T, Object>>(conversion, parameter);//todo:object may give error
                 if (propertyInfo != null)
                 {
                     if (orderBy)

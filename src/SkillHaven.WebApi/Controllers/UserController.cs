@@ -57,7 +57,7 @@ namespace SkillHaven.WebApi.Controllers
             return Ok(result);
         }
 
-        [HttpPut("change-password")]
+        [HttpPatch("change-password")]
         public async Task<IActionResult> ChangePassword(ChangePasswordCommand command)
         {
             var result = await _mediator.Send(command);

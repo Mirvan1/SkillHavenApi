@@ -156,4 +156,7 @@
   <data name="UnAuthorized2" xml:space="preserve">
     <value>{0} kaynağına yetkisiz erişim. Lütfen doğru kimlik bilgilerinizi kullandığınızdan emin olun.</value>
   </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>Kullanici bulunamadi..</value>
+  </data>
 </root>

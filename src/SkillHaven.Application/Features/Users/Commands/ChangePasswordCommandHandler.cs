@@ -34,11 +34,13 @@ namespace SkillHaven.Application.Features.Users.Commands
 
             var getUser = _userRepository.GetByEmail(getUserEmail);
 
+            if (getUser is null) throw new DatabaseValidationException(_localizer["UserNotFound","Errors"].Value);
+
             bool passwordValidation = BCrypt.Net.BCrypt.Verify(request.OldPassword, getUser.Password);
 
             if (!passwordValidation) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Old Password"].Value);
 
-            if(!request.NewPassword.Equals(request.ConfirmPassword)) throw new AggregateException("New password and ConfirmPasswor is not match");
+            if(!request.NewPassword.Equals(request.ConfirmPassword)) throw new AggregateException("New password and ConfirmPassword is not match");
 
             getUser.Password=BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
 

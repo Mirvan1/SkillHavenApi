@@ -153,4 +153,7 @@
   <data name="UnAuthorized" xml:space="preserve">
     <value>Unauthorized access to resource {0}. Please ensure you have the right credentials.</value>
   </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>The User can not find.</value>
+  </data>
 </root>

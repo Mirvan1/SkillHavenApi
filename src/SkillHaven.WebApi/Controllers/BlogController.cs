@@ -40,7 +40,7 @@ namespace SkillHaven.WebApi.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Create( CreateUserCommand command)
+        public async Task<IActionResult> Create( CreateBlogCommand  command)
         {
             var create = await _mediator.Send(command);
 

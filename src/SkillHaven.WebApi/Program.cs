@@ -22,7 +22,7 @@ using SkillHaven.Application.Mappings;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Infrastructure.Data;
 using SkillHaven.Infrastructure.Repositories;
-using SkillHaven.Shared;
+using SkillHaven.Shared.User.Mail;
 using SkillHaven.WebApi.Extensions;
 using SkillHaven.WebApi.Hubs;
 using Swashbuckle.AspNetCore.Filters;
@@ -49,7 +49,7 @@ var connStr=configuration.GetConnectionString("DefaultConnection");
 
 var logger = NLog.LogManager.Setup().LoadConfigurationFromFile("nlog.config").GetCurrentClassLogger();
 
-logger.Error("ssss");
+//logger.Error("ssss");   
 builder.Host.UseNLog();
 builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
@@ -65,6 +65,7 @@ var assm = Assembly.GetExecutingAssembly();
 
 
 builder.Services.AddHttpContextAccessor();//httpcontext accesor di
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
@@ -77,6 +78,7 @@ builder.Services.AddScoped<IBlogCommentRepository, BlogCommentRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IChatUserRepository, ChatUserRepository>();
 builder.Services.AddScoped<IUserConnectionRepository, ChatUserConnectionRepository>();
+builder.Services.AddScoped<IMailService, MailService>();
 
 builder.Services.AddTransient(typeof(ILoggerService<>), typeof(LoggerService<>));//init only once 
 
@@ -125,7 +127,6 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
 });
 
 
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options=>{
     options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
@@ -146,7 +147,7 @@ builder.Services.AddSwaggerGen(options=>{
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
-        builder => builder.WithOrigins("http://localhost:8000", "http://127.0.0.1:8080") 
+        builder => builder.WithOrigins("http://localhost:8000", "http://localhost:4200", "http://127.0.0.1:8080") 
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials());
@@ -178,7 +179,7 @@ builder.Services.AddSignalR();
 
 
 //var logger = NLog.LogManager.Setup().LoadConfigurationFromXml("nlog.config").GetCurrentClassLogger();
-
+ 
 
 var app = builder.Build();
 
@@ -197,7 +198,7 @@ var localizeOptions = app.Services.GetService<IOptions<RequestLocalizationOption
 app.UseRequestLocalization(localizeOptions.Value);
 
 app.UseMiddleware<ExceptionMiddleware>();
-
+ 
 app.UseRouting();  
 
 app.UseHttpsRedirection();

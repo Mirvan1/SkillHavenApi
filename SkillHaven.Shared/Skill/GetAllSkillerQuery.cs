@@ -9,6 +9,6 @@ namespace SkillHaven.Shared.Skill
 {
     public class GetAllSkillerQuery : PaginatedRequest, IRequest<PaginatedResult<SkillerDto>>
     {
-        public string SearchByName { get; set; } = string.Empty;
+        public string? SearchByName { get; set; } = string.Empty;
     }
 }
