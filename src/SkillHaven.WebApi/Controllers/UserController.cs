@@ -39,6 +39,16 @@ namespace SkillHaven.WebApi.Controllers
         //    return Ok(userId);
         //}
 
+
+        [HttpGet("get-logged-user")]
+        public async Task<IActionResult> GetUser()
+        {
+            var query = new GetLoggedUserQuery {  };
+            var userDto = await _mediator.Send(query);
+
+            return Ok(userDto);
+        }
+
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUser(int userId)
         {
