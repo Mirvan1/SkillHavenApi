@@ -22,19 +22,20 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
         private readonly IUserService _userService;
         private readonly IUserConnectionRepository _userConnectionRepository;
         public readonly IStringLocalizer _localizer;
+        private readonly IUserRepository _userRepository;
 
-        public GetAllChatUserQueryHandler(IUserConnectionRepository userConnectionRepository, IUserService userService, IChatUserRepository chatUserRepository)
+        public GetAllChatUserQueryHandler(IUserConnectionRepository userConnectionRepository, IUserService userService, IChatUserRepository chatUserRepository, IUserRepository userRepository)
         {
             _userConnectionRepository=userConnectionRepository;
             _userService=userService;
             _chatUserRepository=chatUserRepository;
             _localizer=new Localizer();
-
+            _userRepository=userRepository;
         }
 
         public Task<PaginatedResult<GetChatUserDto>> Handle(GetAllChatUserQuery request, CancellationToken cancellationToken)
         {
-            if (_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
+            if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
 
             var getUser = _userService.GetUser();
@@ -58,6 +59,7 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
                 foreach( var dbChatUser in dbResult.Data)
                 {
                     var userConnection = _userConnectionRepository.GetByChatUserId(dbChatUser.Id);
+                    var userInfo = _userRepository.GetById(dbChatUser.UserId);
                     GetChatUserDto getChatUserDto = new()
                     {
                         Id=dbChatUser.Id,
@@ -66,7 +68,8 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
                         Status=dbChatUser.Status,
                         ProfilePicture=dbChatUser.ProfilePicture,
                         ConnectionId=userConnection?.ConnectionId,
-                        ConnectedTime=userConnection?.ConnectedTime
+                        ConnectedTime=userConnection?.ConnectedTime,
+                        FullName=userInfo!=null ? userInfo.FirstName+" "+userInfo.LastName:""
 
                     };
                     chatUserDto.Data.Add(getChatUserDto);

@@ -15,6 +15,7 @@ namespace SkillHaven.Shared.Chat
         public string? ProfilePicture { get; set; }
         public string? ConnectionId { get; set; }
         public DateTime? ConnectedTime { get; set; }
+        public string FullName { get; set; }
 
     }
 }

@@ -52,6 +52,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
                 Email=getUser.Email,
                 FullName=getUser.FirstName+" "+getUser.LastName,
                 Experience=getUser.Role==Role.Consultant.ToString() ? getUser.Consultant.Experience : 0,
+                Description=getUser.Role == Role.Consultant.ToString()?getUser.Consultant.Description:null,
                 SupervisorDescription=getUser.Role==Role.Supervisor.ToString() ? getUser.Supervisor.Description : null,
                 SupervisorExpertise=getUser.Role==Role.Supervisor.ToString() ? getUser.Supervisor.Description : null,
 

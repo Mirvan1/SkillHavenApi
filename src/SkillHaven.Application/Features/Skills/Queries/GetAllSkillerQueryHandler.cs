@@ -67,7 +67,8 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         SupervisorDescription=skiller.Description,
                         SupervisorExpertise=skiller.Expertise,
                         Rating=skiller.Rating,
-                        Description=skiller.Description
+                        Description=skiller.Description,
+                        UserId=skiller.UserId
                     };
                     skillers.Data.Add(skillerDto);
                 }
@@ -110,7 +111,8 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         ProfilePicture=skiller.User.ProfilePicture,
                         Experience=skiller.Experience,
                         Rating=skiller.Rating,
-                        Description=skiller.Description
+                        Description=skiller.Description,
+                        UserId=skiller.UserId
                     };
                     skillers.Data.Add(skillerDto);
                 }

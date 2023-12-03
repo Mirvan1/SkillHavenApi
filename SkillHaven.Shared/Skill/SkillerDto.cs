@@ -20,5 +20,7 @@ namespace SkillHaven.Shared.Skill
         public string? Description { get; set; }
 
         public int? Rating { get; set; }
+
+        public int UserId { get; set; }
     }
 }

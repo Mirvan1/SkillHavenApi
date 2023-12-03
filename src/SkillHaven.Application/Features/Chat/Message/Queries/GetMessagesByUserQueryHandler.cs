@@ -51,13 +51,13 @@ namespace SkillHaven.Application.Features.Chat.Message.Queries
 
             if (getUser is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Chat User History"].Value);
 
-            var getSenderConnection = _chatUserConnectionRepository.GetByUserId(getChatUser.Id);
+            //var getSenderConnection = _chatUserConnectionRepository.GetByUserId(getChatUser.Id);
 
-            if (getSenderConnection is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User Chat Hub"].Value);
+            //if (getSenderConnection is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User Chat Hub"].Value);
 
             var getReceviderChatUser= _chatUserRepository.getByUserId(request.ReceiverUserId);
 
-            if (getSenderConnection is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User Chat Hub"].Value);
+            if (getReceviderChatUser is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User Chat Hub"].Value);
 
 
 

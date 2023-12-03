@@ -71,7 +71,8 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         Experience=data.Experience,
                         ProfilePicture=data.User?.ProfilePicture,
                         role=Enum.TryParse(data.User?.Role, out Role r) ? r : null,
-                        Email=data?.User?.Email
+                        Email=data?.User?.Email,
+                        UserId=data.UserId
                     };
                     result.Data.Add(skillerDto);
                 }
