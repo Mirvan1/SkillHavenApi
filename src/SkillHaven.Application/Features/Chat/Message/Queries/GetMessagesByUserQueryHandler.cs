@@ -24,16 +24,17 @@ namespace SkillHaven.Application.Features.Chat.Message.Queries
         public readonly IUserService _userService;
         public readonly IUserConnectionRepository _chatUserConnectionRepository;
         public readonly IStringLocalizer _localizer;
+        public readonly IUserRepository _userRepository;
 
 
-        public GetMessagesByUserQueryHandler(IMessageRepository messageRepository, IChatUserRepository chatUserRepository, IUserService userService, IUserConnectionRepository chatUserConnectionRepository)
+        public GetMessagesByUserQueryHandler(IMessageRepository messageRepository, IChatUserRepository chatUserRepository, IUserService userService, IUserConnectionRepository chatUserConnectionRepository, IUserRepository userRepository)
         {
             _messageRepository=messageRepository;
             _chatUserRepository=chatUserRepository;
             _userService=userService;
             _chatUserConnectionRepository=chatUserConnectionRepository;
             _localizer=new Localizer();
-
+            _userRepository=userRepository;
         }
 
 
@@ -64,15 +65,16 @@ namespace SkillHaven.Application.Features.Chat.Message.Queries
             Expression<Func<SkillHaven.Domain.Entities.Message, bool>> filterExpression = null;
             Func<IQueryable<SkillHaven.Domain.Entities.Message>, IOrderedQueryable<SkillHaven.Domain.Entities.Message>> orderByExpression = null;
 
-            if (!string.IsNullOrEmpty(request.Filter))
-            {
-                filterExpression = entity => entity.SenderId==getChatUser.Id && entity.ReceiverId== getReceviderChatUser.Id;
-            }
+            //if (!string.IsNullOrEmpty(request.Filter))
+            //{
+                filterExpression = entity => (entity.SenderId==getChatUser.Id && entity.ReceiverId== getReceviderChatUser.Id)
+                                              || (entity.SenderId == getReceviderChatUser.Id && entity.ReceiverId == getChatUser.Id);
+            //}
 
             var includeProperties = new Expression<Func<SkillHaven.Domain.Entities.Message, object>>[]
             {
-                //e => e.Sender,
-                //e=>e.Receiver
+                e => e.Sender,
+                e=>e.Receiver
             };
 
 
@@ -114,8 +116,10 @@ namespace SkillHaven.Application.Features.Chat.Message.Queries
                 MessageId = message.MessageId,
                 SenderChatId = message.SenderId,
                 SenderUserId = _chatUserRepository.GetById(message.SenderId).UserId,
+                SenderUsername=_userRepository.GetById(message.Sender.UserId).FirstName,
                 ReceiverChatId = message.ReceiverId,
                 ReceiverUserId =_chatUserRepository.GetById(message.ReceiverId).UserId,//change this due to performance
+                ReceiverUsername=_userRepository.GetById(message.Receiver.UserId).FirstName,
                 Content = message.Content,
                 Timestamp = message.Timestamp,
                 MessageType = message?.MessageType,

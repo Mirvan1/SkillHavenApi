@@ -11,8 +11,10 @@ namespace SkillHaven.Shared.Chat
         public int MessageId { get; set; }
         public int SenderChatId { get; set; }
         public int SenderUserId { get; set; }
+        public string SenderUsername { get; set; }
         public int ReceiverChatId { get; set; }
         public int ReceiverUserId { get; set; }
+        public string ReceiverUsername { get; set; }
         public string Content { get; set; }
         public DateTime Timestamp { get; set; }
         public string? MessageType { get; set; }
