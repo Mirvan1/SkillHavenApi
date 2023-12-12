@@ -77,7 +77,7 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                         isPublished=data.IsPublished,
                         PublishDate=data.PublishDate,
                         BlogId=data.BlogId,
-                        UpdateDate=data.UpdateDate
+                        UpdateDate=(DateTime)data.UpdateDate
 
                     };
                     result.Data.Add(getBlogsDto);

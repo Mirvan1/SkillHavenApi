@@ -42,8 +42,9 @@ namespace SkillHaven.Application.Features.Blogs.Command
                 Content=request.Content,
                 Title=request.Title,
                 IsPublished=request.isPublished,
-                PublishDate=default,
-                User=_mapper.Map<User>(_userService.GetUser())
+                //PublishDate=default,
+                UserId=_userService.GetUser().UserId,
+                //User=_mapper.Map<User>(_userService.GetUser())
             };
 
 

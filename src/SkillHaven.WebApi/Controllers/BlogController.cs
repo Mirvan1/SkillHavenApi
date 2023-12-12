@@ -74,18 +74,17 @@ namespace SkillHaven.WebApi.Controllers
         }
 
 
-        [HttpGet("/comments/{blogId}")]
-        public async Task<IActionResult> GetBlogComments(int blogId, [FromQuery] int Page, 
-            [FromQuery]int PageSize, [FromQuery] bool OrderBy, [FromQuery] string OrderByParameter)
+        [HttpPost("/comments")]
+        public async Task<IActionResult> GetBlogComments(  BlogByCommentsQuery query)
         {
-            var query = new BlogByCommentsQuery()
-            {
-                BlogId=blogId,
-                Page=Page,
-                PageSize=PageSize,
-                OrderBy=OrderBy,
-                OrderByPropertname=OrderByParameter
-            };
+            //var query = new BlogByCommentsQuery()
+            //{
+            //    BlogId=blogId,
+            //    Page=Page,
+            //    PageSize=PageSize,
+            //    OrderBy=OrderBy,
+            //    OrderByPropertname=OrderByParameter
+            //};
             var comments = await _mediator.Send(query);
             return Ok(comments);
         }

@@ -41,8 +41,8 @@ namespace SkillHaven.Application.Features.Blogs.Command
 
             if (blog is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Blog"].Value);
 
-            blog.Title??=request.Title;
-            blog.Content??=request.Content;
+            blog.Title=request.Title;
+            blog.Content=request.Content;
             blog.UpdateDate=DateTime.Now;
             blog.IsPublished=request.isPublished;
 

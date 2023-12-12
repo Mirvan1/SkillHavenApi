@@ -22,17 +22,18 @@ namespace SkillHaven.Application.Features.Blogs.Queries
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
+        private readonly IUserRepository _userRepository;
 
         public readonly IStringLocalizer _localizer;
 
-        public GetBlogQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository)
+        public GetBlogQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IUserRepository userRepository)
         {
             _httpContextAccessor=httpContextAccessor;
             _userService=userService;
             _mapper=mapper;
             _blogRepository=blogRepository;
             _localizer=new Localizer();
-
+            _userRepository=userRepository;
         }
         public Task<GetBlogsDto> Handle(GetBlogQuery request, CancellationToken cancellationToken)
         {
@@ -42,7 +43,15 @@ namespace SkillHaven.Application.Features.Blogs.Queries
 
             if (blog is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Blog "].Value);
 
+            
             var blogginMap = _mapper.Map<GetBlogsDto>(blog);
+
+            if(blog.UserId !=null)
+            {
+                var user = _userRepository.GetById(blog.UserId);
+                blogginMap.FullName =$"{user.FirstName} {user.LastName}";
+            }            
+            if (blog?.BlogComments != null) blogginMap.BlogComments= blog.BlogComments.Count(); 
 
             return Task.FromResult(blogginMap);
         }
