@@ -9,6 +9,6 @@ namespace SkillHaven.Application.Interfaces.Services
 {
     public interface IMailService
     {
-        Task<bool> SendEmail(MailInfo mailData);
+        Task<(bool,string)> SendEmail(MailInfo mailData );
     }
 }

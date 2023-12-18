@@ -16,6 +16,8 @@ namespace SkillHaven.Domain.Entities
         public DateTime? UpdateDate { get; set; } = DateTime.Now;
         public bool IsPublished { get; set; }
         public int? Vote { get; set; }
+
+        public int? NOfReading { get; set; }
         public virtual User User { get; set; }
 
         public virtual ICollection<BlogComments> BlogComments{ get; set;}

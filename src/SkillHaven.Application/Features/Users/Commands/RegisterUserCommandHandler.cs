@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace SkillHaven.Application.Features.Users.Commands
 {
-    public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, bool>
+    public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, int>
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
@@ -32,7 +32,7 @@ namespace SkillHaven.Application.Features.Users.Commands
             _mailService=mailService;
         }
 
-        public async Task<bool> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+        public async Task<int> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
             var checkEmail = _userRepository.GetByEmail(request.Email);//buraya get by email eklenecek;
 
@@ -53,7 +53,8 @@ namespace SkillHaven.Application.Features.Users.Commands
                 LastName=request.LastName,
                 Password=request.Password,
                 ProfilePicture=SavePhoto(request.ProfilePicture, request.FirstName)??null,
-                Role=request.Role.ToString()
+                Role=request.Role.ToString(),
+                HasMailConfirm=false
             };
 
             if (request.Role == Role.Supervisor && request.SupervisorInfo!=null)
@@ -75,23 +76,28 @@ namespace SkillHaven.Application.Features.Users.Commands
                 };
                 newUser.Consultant=newConsultant;
             }
+            string verificationCode = string.Empty;
+
+           var mailSendResult= await _mailService.SendEmail(
+             new Shared.User.Mail.MailInfo()
+             {
+                 MailType=MailType.PlainText,
+                 EmailBody=$"Welcome to our app-{newUser.FirstName}{newUser.LastName}",
+                 EmailToName=newUser.FirstName+newUser.LastName,
+                 EmailSubject="Registratation",
+                 EmailToId=newUser.Email
+             }
+         );
+            if (mailSendResult.Item1 && !string.IsNullOrEmpty(mailSendResult.Item2))
+                newUser.MailConfirmationCode=mailSendResult.Item2;
+           
 
             _userRepository.Add(newUser);
             int result = _userRepository.SaveChanges();
 
             //send email mehod impl
-
-            await _mailService.SendEmail(
-                new Shared.User.Mail.MailInfo()
-                {
-                    MailType=MailType.PlainText,
-                    EmailBody=$"Welcome to our app-{newUser.FirstName}{newUser.LastName}",
-                    EmailToName=newUser.FirstName+newUser.LastName,
-                    EmailSubject="Registratation",
-                    EmailToId=newUser.Email
-                }
-            );
-            return await Task.FromResult(result>0);
+         
+            return await Task.FromResult(result>0? _userRepository.GetByEmail(request.Email).UserId:0);
 
         }
 
@@ -106,6 +112,7 @@ namespace SkillHaven.Application.Features.Users.Commands
             if (string.IsNullOrEmpty(photoBase64))
                 return null;
 
+            photoBase64=photoBase64.Replace("data:image/png;base64,","");
             string imagesFolderPath = _configuration["ImagesFolderPath"];
             string extension = _configuration["ImageExtension"];
 
@@ -117,7 +124,7 @@ namespace SkillHaven.Application.Features.Users.Commands
 
             string fileName = name+"_"+DateTime.Now.ToFileTime();
 
-            string filePath = Path.Combine($"{imagesFolderPath}.{extension}", fileName);
+            string filePath = Path.Combine(imagesFolderPath, $"{fileName}.{extension}");
 
             File.WriteAllBytes(filePath, imageBytes);
 

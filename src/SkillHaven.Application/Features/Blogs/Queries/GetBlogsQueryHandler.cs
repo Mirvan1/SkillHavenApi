@@ -46,7 +46,7 @@ namespace SkillHaven.Application.Features.Blogs.Queries
 
             if (!string.IsNullOrEmpty(request.Filter))
             {
-                filterExpression = entity => entity.User.FirstName.Contains(request.Filter);
+                filterExpression = entity => entity.Content.Contains(request.Filter);
             }
 
             var includeProperties = new Expression<Func<Blog, object>>[]

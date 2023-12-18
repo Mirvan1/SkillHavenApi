@@ -82,7 +82,8 @@ namespace SkillHaven.Infrastructure.Data
             builder.Property(u => u.LastName).HasMaxLength(50);
             builder.Property(u => u.ProfilePicture).HasMaxLength(255);
             builder.Property(c => c.IsDeleted).IsRequired();
-
+            builder.Property(u => u.MailConfirmationCode).IsRequired().HasMaxLength(7);
+            builder.Property(u => u.HasMailConfirm).IsRequired();
             // Configure User-Supervisor relationship
             builder.HasOne(u => u.Supervisor)
                 .WithOne(s => s.User)
@@ -144,6 +145,7 @@ namespace SkillHaven.Infrastructure.Data
             builder.Property(b => b.UpdateDate).IsRequired();
             builder.Property(b => b.IsPublished).IsRequired();
             builder.Property(b => b.Vote);
+            builder.Property(b => b.NOfReading);
 
             builder.HasOne(b => b.User)
                 .WithMany(u => u.Blogs)

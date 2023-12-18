@@ -5,6 +5,7 @@ using Microsoft.Extensions.Localization;
 using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
+using SkillHaven.Domain.Entities;
 using SkillHaven.Shared.Blog;
 using SkillHaven.Shared.Exceptions;
 using SkillHaven.Shared.Infrastructure.Exceptions;
@@ -51,7 +52,11 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                 var user = _userRepository.GetById(blog.UserId);
                 blogginMap.FullName =$"{user.FirstName} {user.LastName}";
             }            
-            if (blog?.BlogComments != null) blogginMap.BlogComments= blog.BlogComments.Count(); 
+            if (blog?.BlogComments != null) blogginMap.BlogComments= blog.BlogComments.Count();
+
+            blog.NOfReading+=1;
+            _blogRepository.Update(blog);
+            _blogRepository.SaveChanges();
 
             return Task.FromResult(blogginMap);
         }

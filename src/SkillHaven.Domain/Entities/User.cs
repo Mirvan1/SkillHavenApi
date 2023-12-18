@@ -17,6 +17,8 @@ namespace SkillHaven.Domain.Entities
         public string? ProfilePicture { get; set; }
 
         public bool IsDeleted { get; set; }
+        public string? MailConfirmationCode { get; set; }
+        public bool? HasMailConfirm { get; set; }
 
         // Navigation properties for relationships
         public Supervisor? Supervisor { get; set; }

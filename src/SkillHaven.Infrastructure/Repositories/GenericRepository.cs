@@ -110,12 +110,12 @@ namespace SkillHaven.Infrastructure.Repositories
                     if (orderBy)
                         query = query.OrderBy(lambda.Compile()).AsQueryable();
                     else
-                        query = query.OrderByDescending(e => propertyInfo.GetValue(e, null)).AsQueryable();
+                        query = query.OrderByDescending(lambda.Compile()).AsQueryable();
 
                 }
                 else
                 {
-                    query = query.OrderBy(e => e.GetType().GetProperty("Id").GetValue(e, null));
+                    query = query.OrderBy(e => propertyInfo.GetValue(e, null)).AsQueryable();
                 }
 
 

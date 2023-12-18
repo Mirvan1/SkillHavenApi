@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SkillHaven.Shared.User
 {
-    public class RegisterUserCommand : IRequest<bool>
+    public class RegisterUserCommand : IRequest<int>
     {
         public string Email { get; set; }
         public string Password { get; set; }

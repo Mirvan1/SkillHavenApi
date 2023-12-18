@@ -41,7 +41,7 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
             var getUser = _userService.GetUser();
 
             if (getUser is null) throw new UnauthorizedAccessException("Sonething wrong in authorize");
-            if (getUser.Role!=Role.Admin.ToString()) throw new UnauthorizedAccessException("Only Admin access this endpoint");
+            //if (getUser.Role!=Role.Admin.ToString()) throw new UnauthorizedAccessException("Only Admin access this endpoint");
 
             Expression<Func<SkillHaven.Domain.Entities.ChatUser, bool>> filterExpression = null;
             Func<IQueryable<SkillHaven.Domain.Entities.ChatUser>, IOrderedQueryable<SkillHaven.Domain.Entities.ChatUser>> orderByExpression = null;

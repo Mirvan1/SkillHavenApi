@@ -100,6 +100,13 @@ namespace SkillHaven.WebApi.Controllers
             return Ok(result);
         }
 
+        [HttpPost("verify-user"), AllowAnonymous]
+        public async Task<IActionResult> VerifyUser(VerifyUserCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
 
         [HttpPost("auth"),AllowAnonymous]
         public async Task<IActionResult> Auth(AuthUserCommand command)//add controll by ip
