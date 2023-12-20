@@ -146,7 +146,7 @@ namespace SkillHaven.Infrastructure.Data
             builder.Property(b => b.IsPublished).IsRequired();
             builder.Property(b => b.Vote);
             builder.Property(b => b.NOfReading);
-
+            builder.Property(b => b.PhotoPath);
             builder.HasOne(b => b.User)
                 .WithMany(u => u.Blogs)
                 .HasForeignKey(b => b.UserId);

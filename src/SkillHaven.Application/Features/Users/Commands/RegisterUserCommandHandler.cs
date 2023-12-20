@@ -9,6 +9,7 @@ using SkillHaven.Domain.Entities;
 using SkillHaven.Shared.Infrastructure.Exceptions;
 using SkillHaven.Shared.User;
 using SkillHaven.Shared.User.Mail;
+using SkillHaven.Shared.UtilDtos;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -21,13 +22,13 @@ namespace SkillHaven.Application.Features.Users.Commands
     public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, int>
     {
         private readonly IUserRepository _userRepository;
-        private readonly IConfiguration _configuration;
+        private readonly IUtilService _utilService;
         private readonly IStringLocalizer _localizer;
         private readonly IMailService _mailService;
-        public RegisterUserCommandHandler(IUserRepository userRepository, IConfiguration configuration, IMailService mailService)
+        public RegisterUserCommandHandler(IUserRepository userRepository, IUtilService utilService, IMailService mailService)
         {
             _userRepository=userRepository;
-            _configuration = configuration;
+            _utilService = utilService;
             _localizer=new Localizer();
             _mailService=mailService;
         }
@@ -36,7 +37,7 @@ namespace SkillHaven.Application.Features.Users.Commands
         {
             var checkEmail = _userRepository.GetByEmail(request.Email);//buraya get by email eklenecek;
 
-            if (checkEmail is not null)
+            if (checkEmail is not null)     
                 throw new DatabaseValidationException(_localizer["Conflict", "Errors", "Email"].Value);
 
             if (!string.IsNullOrEmpty(request.Password))
@@ -52,7 +53,7 @@ namespace SkillHaven.Application.Features.Users.Commands
                 FirstName=request.FirstName,
                 LastName=request.LastName,
                 Password=request.Password,
-                ProfilePicture=SavePhoto(request.ProfilePicture, request.FirstName)??null,
+                ProfilePicture=_utilService.SavePhoto(request.ProfilePicture, PhotoTypes.UserPhoto.ToString()+"_"+ request.FirstName)??null,
                 Role=request.Role.ToString(),
                 HasMailConfirm=false
             };
@@ -107,28 +108,5 @@ namespace SkillHaven.Application.Features.Users.Commands
             return Path.IsPathRooted(path) && (Path.GetInvalidPathChars().All(c => path.IndexOf(c) == -1));
         }
 
-        private string SavePhoto(string photoBase64, string name)
-        {
-            if (string.IsNullOrEmpty(photoBase64))
-                return null;
-
-            photoBase64=photoBase64.Replace("data:image/png;base64,","");
-            string imagesFolderPath = _configuration["ImagesFolderPath"];
-            string extension = _configuration["ImageExtension"];
-
-            if (!Directory.Exists(imagesFolderPath))
-            {
-                Directory.CreateDirectory(imagesFolderPath);
-            }
-            byte[] imageBytes = Convert.FromBase64String(photoBase64);
-
-            string fileName = name+"_"+DateTime.Now.ToFileTime();
-
-            string filePath = Path.Combine(imagesFolderPath, $"{fileName}.{extension}");
-
-            File.WriteAllBytes(filePath, imageBytes);
-
-            return filePath;
-        }
     }
 }

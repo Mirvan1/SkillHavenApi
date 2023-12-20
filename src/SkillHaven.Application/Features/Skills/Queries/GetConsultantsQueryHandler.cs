@@ -25,14 +25,15 @@ namespace SkillHaven.Application.Features.Skills.Queries
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         public readonly IStringLocalizer _localizer;
+        public readonly IUtilService _utilService;
 
-        public GetConsultantsQueryHandler(IConsultantRepository consultantRepository,  IUserService userService, IMapper mapper)
+        public GetConsultantsQueryHandler(IConsultantRepository consultantRepository, IUserService userService, IMapper mapper, IUtilService utilService)
         {
             _consultantRepository=consultantRepository;
             _userService=userService;
             _mapper=mapper;
             _localizer=new Localizer();
-
+            _utilService=utilService;
         }
         public Task<PaginatedResult<SkillerDto>> Handle(GetConsultantsQuery request, CancellationToken cancellationToken)
         {
@@ -69,7 +70,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         FullName=data.User?.FirstName+" "+data.User?.LastName,
                         Description=data.Description,
                         Experience=data.Experience,
-                        ProfilePicture=data.User?.ProfilePicture,
+                        ProfilePicture=_utilService.GetPhotoAsBase64(data?.User?.ProfilePicture),
                         role=Enum.TryParse(data.User?.Role, out Role r) ? r : null,
                         Email=data?.User?.Email,
                         UserId=data.UserId

@@ -17,6 +17,8 @@ namespace SkillHaven.Domain.Entities
         public bool IsPublished { get; set; }
         public int? Vote { get; set; }
 
+        public string PhotoPath { get; set; }
+
         public int? NOfReading { get; set; }
         public virtual User User { get; set; }
 

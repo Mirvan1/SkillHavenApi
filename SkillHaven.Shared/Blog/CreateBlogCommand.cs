@@ -13,5 +13,6 @@ namespace SkillHaven.Shared.Blog
         public string Content { get; set; }
         public DateTime PublishDate { get; set; } = DateTime.Now;
         public bool isPublished { get; set; }
+        public string Photo { get; set; }
     }
 }

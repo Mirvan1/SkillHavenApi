@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Localization;
 using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
+using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Shared;
 using SkillHaven.Shared.Infrastructure.Exceptions;
@@ -23,14 +24,16 @@ namespace SkillHaven.Application.Features.Skills.Queries
         private readonly IConsultantRepository _consultantRepository;
         private readonly IMapper _mapper;
         public readonly IStringLocalizer _localizer;
+        public readonly IUtilService _utilService;
 
 
-        public GetAllSkillerQueryHandler(ISupervisorRepository supervisorRepository, IConsultantRepository consultantRepository, IMapper mapper, IStringLocalizer<GetAllSkillerQueryHandler> localizer)
+        public GetAllSkillerQueryHandler(ISupervisorRepository supervisorRepository, IConsultantRepository consultantRepository, IMapper mapper, IStringLocalizer<GetAllSkillerQueryHandler> localizer, IUtilService utilService)
         {
             _supervisorRepository=supervisorRepository;
             _consultantRepository=consultantRepository;
             _mapper=mapper;
             _localizer=new Localizer();
+            _utilService=utilService;
         }
 
         public Task<PaginatedResult<SkillerDto>> Handle(GetAllSkillerQuery query, CancellationToken cancellationToken)
@@ -63,7 +66,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         FullName=skiller.User.FirstName+" "+skiller.User.LastName,
                         role=(Role)Enum.Parse(typeof(Role), skiller.User.Role, true),
                         Email=skiller.User.Email,
-                        ProfilePicture=skiller.User.ProfilePicture,
+                        ProfilePicture=_utilService.GetPhotoAsBase64( skiller?.User?.ProfilePicture),
                         SupervisorDescription=skiller.Description,
                         SupervisorExpertise=skiller.Expertise,
                         Rating=skiller.Rating,
@@ -108,7 +111,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         FullName=skiller.User.FirstName+" "+skiller.User.LastName,
                         role=(Role)Enum.Parse(typeof(Role), skiller.User.Role, true),
                         Email=skiller.User.Email,
-                        ProfilePicture=skiller.User.ProfilePicture,
+                        ProfilePicture=_utilService.GetPhotoAsBase64(skiller?.User?.ProfilePicture),
                         Experience=skiller.Experience,
                         Rating=skiller.Rating,
                         Description=skiller.Description,

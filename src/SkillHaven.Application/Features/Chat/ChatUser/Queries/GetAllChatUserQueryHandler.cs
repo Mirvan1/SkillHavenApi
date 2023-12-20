@@ -23,14 +23,16 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
         private readonly IUserConnectionRepository _userConnectionRepository;
         public readonly IStringLocalizer _localizer;
         private readonly IUserRepository _userRepository;
+        private readonly IUtilService _utilService;
 
-        public GetAllChatUserQueryHandler(IUserConnectionRepository userConnectionRepository, IUserService userService, IChatUserRepository chatUserRepository, IUserRepository userRepository)
+        public GetAllChatUserQueryHandler(IUserConnectionRepository userConnectionRepository, IUserService userService, IChatUserRepository chatUserRepository, IUserRepository userRepository, IUtilService utilService)
         {
             _userConnectionRepository=userConnectionRepository;
             _userService=userService;
             _chatUserRepository=chatUserRepository;
             _localizer=new Localizer();
             _userRepository=userRepository;
+            _utilService=utilService;
         }
 
         public Task<PaginatedResult<GetChatUserDto>> Handle(GetAllChatUserQuery request, CancellationToken cancellationToken)
@@ -66,7 +68,7 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
                         UserId=dbChatUser.UserId,
                         LastSeen=dbChatUser.LastSeen,
                         Status=dbChatUser.Status,
-                        ProfilePicture=dbChatUser.ProfilePicture,
+                        ProfilePicture=_utilService.GetPhotoAsBase64(dbChatUser.ProfilePicture),
                         ConnectionId=userConnection?.ConnectionId,
                         ConnectedTime=userConnection?.ConnectedTime,
                         FullName=userInfo!=null ? userInfo.FirstName+" "+userInfo.LastName:""

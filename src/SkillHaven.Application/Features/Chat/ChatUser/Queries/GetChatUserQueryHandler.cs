@@ -21,15 +21,15 @@ namespace SkillHaven.Application.Features.Chat.ChatUser
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         public readonly IStringLocalizer _localizer;
+        private readonly IUtilService _utilService;
 
-
-        public GetChatUserQueryHandler(IChatUserRepository chatUserRepository, IUserService userService, IMapper mapper)
+        public GetChatUserQueryHandler(IChatUserRepository chatUserRepository, IUserService userService, IMapper mapper, IUtilService utilService)
         {
             _chatUserRepository=chatUserRepository;
             _userService=userService;
             _mapper=mapper;
             _localizer=new Localizer();
-
+            _utilService=utilService;
         }
 
 
@@ -48,7 +48,10 @@ namespace SkillHaven.Application.Features.Chat.ChatUser
             if (request.UserId!= getUser.UserId && getUser.Role!=Role.Admin.ToString()) throw new UnauthorizedAccessException("The user is different from auhtorized user");
             var getChatUser = _chatUserRepository.getByUserId(request.UserId);
              var getChatUserDto = _mapper.Map<GetChatUserDto>(getChatUser);
-
+            if (getChatUserDto!=null)
+            {
+                getChatUserDto.ProfilePicture=_utilService.GetPhotoAsBase64(getChatUser.ProfilePicture);
+            }
 
             return Task.FromResult(getChatUserDto);
         }

@@ -23,9 +23,9 @@ namespace SkillHaven.Application.Features.Skills.Queries
         private readonly IUserService _userService;
         private readonly IUserRepository _userRepository;
         public readonly IStringLocalizer _localizer;
+        private readonly IUtilService _utilService;
 
-
-        public GetSkillerQueryHandler(ISupervisorRepository supervisorRepository, IConsultantRepository consultantRepository, IMapper mapper, IUserService userService, IUserRepository userRepository)
+        public GetSkillerQueryHandler(ISupervisorRepository supervisorRepository, IConsultantRepository consultantRepository, IMapper mapper, IUserService userService, IUserRepository userRepository, IUtilService utilService)
         {
             _supervisorRepository=supervisorRepository;
             _consultantRepository=consultantRepository;
@@ -33,7 +33,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
             _userService=userService;
             _userRepository=userRepository;
             _localizer=new Localizer();
-
+            _utilService=utilService;
         }
 
         public Task<SkillerDto> Handle(GetSkillerQuery request, CancellationToken cancellationToken)
@@ -55,7 +55,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
                 Description=getUser.Role == Role.Consultant.ToString()?getUser.Consultant.Description:null,
                 SupervisorDescription=getUser.Role==Role.Supervisor.ToString() ? getUser.Supervisor.Description : null,
                 SupervisorExpertise=getUser.Role==Role.Supervisor.ToString() ? getUser.Supervisor.Description : null,
-
+                ProfilePicture=_utilService.GetPhotoAsBase64(getUser.ProfilePicture)
             };
 
             if (getUser.Role==Role.Supervisor.ToString())

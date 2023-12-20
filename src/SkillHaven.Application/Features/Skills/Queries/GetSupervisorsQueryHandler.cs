@@ -26,14 +26,14 @@ namespace SkillHaven.Application.Features.Skills.Queries
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         public readonly IStringLocalizer _localizer;
-
-        public GetSupervisorsQueryHandler(ISupervisorRepository supervisorRepository, IUserService userService, IMapper mapper)
+        public readonly IUtilService _utilService;
+        public GetSupervisorsQueryHandler(ISupervisorRepository supervisorRepository, IUserService userService, IMapper mapper, IUtilService utilService)
         {
             _supervisorRepository=supervisorRepository;
             _userService=userService;
             _mapper=mapper;
             _localizer=new Localizer();
-
+            _utilService=utilService;
         }
 
 
@@ -74,7 +74,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         FullName=data.User?.FirstName+" "+data.User?.LastName,
                         SupervisorDescription=data.Description,
                         SupervisorExpertise=data.Expertise,
-                        ProfilePicture=data.User?.ProfilePicture,
+                        ProfilePicture=_utilService.GetPhotoAsBase64( data.User?.ProfilePicture),
                         role=Enum.TryParse(data.User?.Role, out Role r) ? r : null,
                         Email=data?.User?.Email,
                         UserId=data.UserId

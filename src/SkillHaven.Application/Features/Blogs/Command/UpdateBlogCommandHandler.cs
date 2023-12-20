@@ -8,6 +8,7 @@ using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Shared.Blog;
 using SkillHaven.Shared.Exceptions;
 using SkillHaven.Shared.Infrastructure.Exceptions;
+using SkillHaven.Shared.UtilDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,15 +24,15 @@ namespace SkillHaven.Application.Features.Blogs.Command
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         public readonly IStringLocalizer _localizer;
-
-        public UpdateBlogCommandHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository)
+        public readonly IUtilService _utilService;
+        public UpdateBlogCommandHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IUtilService utilService)
         {
             _httpContextAccessor=httpContextAccessor;
             _userService=userService;
             _mapper=mapper;
             _blogRepository=blogRepository;
             _localizer=new Localizer();
-
+            _utilService=utilService;
         }
         public Task<bool> Handle(UpdateBlogCommand request, CancellationToken cancellationToken)
         {
@@ -45,6 +46,7 @@ namespace SkillHaven.Application.Features.Blogs.Command
             blog.Content=request.Content;
             blog.UpdateDate=DateTime.Now;
             blog.IsPublished=request.isPublished;
+            blog.PhotoPath=_utilService.SavePhoto(request.Photo, PhotoTypes.BlogPhoto.ToString()+"_"+ request.Title+DateTime.Now.ToLongDateString());
 
             _blogRepository.Update(blog);
             int result = _blogRepository.SaveChanges();

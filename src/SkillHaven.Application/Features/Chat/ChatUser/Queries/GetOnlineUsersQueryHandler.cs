@@ -23,15 +23,15 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         public readonly IStringLocalizer _localizer;
+        private readonly IUtilService _utilService;
 
-
-        public GetOnlineUsersQueryHandler(IChatUserRepository chatUserRepository, IUserService userService, IMapper mapper)
+        public GetOnlineUsersQueryHandler(IChatUserRepository chatUserRepository, IUserService userService, IMapper mapper, IUtilService utilService)
         {
             _chatUserRepository=chatUserRepository;
             _userService=userService;
             _mapper=mapper;
             _localizer=new Localizer();
-
+            _utilService=utilService;
         }
 
         public Task<PaginatedResult<GetOnlineUsersDto>> Handle(GetOnlineUsersQuery request, CancellationToken cancellationToken)
@@ -57,6 +57,13 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
                 Data=_mapper.Map<List<GetOnlineUsersDto>>(dbResult.Data)
             };
 
+            if (paginatedResult.Data!=null)
+            {
+                foreach( var data in paginatedResult.Data)
+                {
+                    data.ProfilePicture=_utilService.GetPhotoAsBase64(data.ProfilePicture);
+                }
+            }
             return Task.FromResult(paginatedResult);
         }
 

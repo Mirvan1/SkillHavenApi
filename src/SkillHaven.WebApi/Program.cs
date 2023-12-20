@@ -79,6 +79,7 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IChatUserRepository, ChatUserRepository>();
 builder.Services.AddScoped<IUserConnectionRepository, ChatUserConnectionRepository>();
 builder.Services.AddScoped<IMailService, MailService>();
+builder.Services.AddScoped<IUtilService, UtilService>();
 
 builder.Services.AddTransient(typeof(ILoggerService<>), typeof(LoggerService<>));//init only once 
 

@@ -26,15 +26,16 @@ namespace SkillHaven.Application.Features.Blogs.Queries
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         public readonly IStringLocalizer _localizer;
+        public readonly IUtilService _utilService;
 
-        public GetBlogsQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository)
+        public GetBlogsQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IUtilService utilService)
         {
             _httpContextAccessor=httpContextAccessor;
             _userService=userService;
             _mapper=mapper;
             _blogRepository=blogRepository;
             _localizer=new Localizer();
-
+            _utilService=utilService;
         }
         public Task<PaginatedResult<GetBlogsDto>> Handle(GetBlogsQuery request, CancellationToken cancellationToken)
         {
@@ -77,7 +78,10 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                         isPublished=data.IsPublished,
                         PublishDate=data.PublishDate,
                         BlogId=data.BlogId,
-                        UpdateDate=(DateTime)data.UpdateDate
+                        UpdateDate=(DateTime)data.UpdateDate,
+                        Vote=data?.Vote,
+                        NOfReadings=data.NOfReading,
+                        PhotoPath=_utilService.GetPhotoAsBase64(data.PhotoPath)
 
                     };
                     result.Data.Add(getBlogsDto);
