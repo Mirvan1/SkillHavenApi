@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Shared.User;
+using SkillHaven.Shared.User.Mail;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -102,6 +103,22 @@ namespace SkillHaven.WebApi.Controllers
 
         [HttpPost("verify-user"), AllowAnonymous]
         public async Task<IActionResult> VerifyUser(VerifyUserCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+
+        [HttpPost("forgot-password"), AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+
+        [HttpPost("reset-password"), AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ResetPasswordCommand command)
         {
             var result = await _mediator.Send(command);
             return Ok(result);

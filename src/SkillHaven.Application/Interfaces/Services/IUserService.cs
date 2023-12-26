@@ -15,5 +15,6 @@ namespace SkillHaven.Application.Interfaces.Services
 
         public bool isUserAuthenticated();
         public UserDto GetUser();
+        public UserDto GetUserFromToken(string token);
     }
 }

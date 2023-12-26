@@ -77,20 +77,22 @@ namespace SkillHaven.Application.Features.Users.Commands
                 };
                 newUser.Consultant=newConsultant;
             }
-            string verificationCode = string.Empty;
 
-           var mailSendResult= await _mailService.SendEmail(
+            Random random = new Random();
+            string verificationCode=random.Next(0, 999999).ToString();
+
+            var mailSendResult = await _mailService.SendEmail(
              new Shared.User.Mail.MailInfo()
              {
                  MailType=MailType.PlainText,
-                 EmailBody=$"Welcome to our app-{newUser.FirstName}{newUser.LastName}",
+                 EmailBody=$"Welcome to our app-{newUser.FirstName}{newUser.LastName}:Your Confirm Code:{verificationCode}",
                  EmailToName=newUser.FirstName+newUser.LastName,
                  EmailSubject="Registratation",
                  EmailToId=newUser.Email
              }
          );
-            if (mailSendResult.Item1 && !string.IsNullOrEmpty(mailSendResult.Item2))
-                newUser.MailConfirmationCode=mailSendResult.Item2;
+            if (mailSendResult.Item1 )
+                newUser.MailConfirmationCode=verificationCode;
            
 
             _userRepository.Add(newUser);

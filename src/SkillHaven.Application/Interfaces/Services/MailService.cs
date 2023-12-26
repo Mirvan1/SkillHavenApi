@@ -34,10 +34,10 @@ namespace SkillHaven.Application.Interfaces.Services
                     //emailMessage.Cc.Add(new MailboxAddress("Cc Receiver", "cc@example.com"));
                     // emailMessage.Bcc.Add(new MailboxAddress("Bcc Receiver", "bcc@example.com"));
 
-                    Random random = new Random();
-                    verificationCode=random.Next(0, 999999).ToString();
+                    //Random random = new Random();
+                   // verificationCode=random.Next(0, 999999).ToString();
 
-                    mailData.EmailSubject="\n Your verification code is : "+verificationCode+"\n";
+                   // mailData.EmailSubject="\n Your verification code is : "+verificationCode+"\n";
                     emailMessage.Subject = mailData.EmailSubject;
 
                     BodyBuilder emailBodyBuilder = new BodyBuilder();
@@ -57,7 +57,7 @@ namespace SkillHaven.Application.Interfaces.Services
                     }
                 }
 
-                return (true, verificationCode);
+                return (true, string.Empty);
             }catch(Exception e)
             {
                 _logger.LogError(e.Message);

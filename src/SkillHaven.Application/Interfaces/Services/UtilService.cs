@@ -55,7 +55,7 @@ namespace SkillHaven.Application.Interfaces.Services
             }
             catch (Exception e)
             {
-                if (path.Contains(PhotoTypes.UserPhoto.ToString()))
+                if ( !string.IsNullOrEmpty(path) && path.Contains(PhotoTypes.UserPhoto.ToString()))
                     imageArray = System.IO.File.ReadAllBytes(Path.Combine(Environment.CurrentDirectory, $"{imagesFolderPath}/user.png"));
                 else 
                     imageArray = System.IO.File.ReadAllBytes(Path.Combine(Environment.CurrentDirectory, $"{imagesFolderPath}/blog.png"));
