@@ -14,7 +14,6 @@ namespace SkillHaven.Shared
         public bool OrderBy { get; set; } = false;
         public string OrderByPropertname { get; set; } = string.Empty;
 
-        [JsonIgnore]
         public string? Filter { get; set; } = string.Empty;
     }
 }

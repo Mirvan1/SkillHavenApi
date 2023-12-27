@@ -44,6 +44,11 @@ namespace SkillHaven.Application.Features.Blogs.Queries
 
             if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
+            if (string.IsNullOrEmpty(request.OrderByPropertname))
+            {
+                request.OrderBy=false;
+                request.OrderByPropertname ="PublishDate";
+            }
 
             if (!string.IsNullOrEmpty(request.Filter))
             {
@@ -80,13 +85,13 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                         BlogId=data.BlogId,
                         UpdateDate=(DateTime)data.UpdateDate,
                         Vote=data?.Vote,
-                        NOfReadings=data.NOfReading,
+                        NOfReading=data.NOfReading,
                         PhotoPath=_utilService.GetPhotoAsBase64(data.PhotoPath)
 
                     };
                     result.Data.Add(getBlogsDto);
                 }
-            }
+             }
             return Task.FromResult(result);
 
         }

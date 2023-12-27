@@ -56,8 +56,10 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                 blogginMap.PhotoPath=_utilService.GetPhotoAsBase64(blogginMap?.PhotoPath);
             }            
             if (blog?.BlogComments != null) blogginMap.BlogComments= blog.BlogComments.Count();
-
-            blog.NOfReading+=1;
+            
+            if (blog?.NOfReading is null) blog.NOfReading=1;
+            else blog.NOfReading+=1;
+            
             _blogRepository.Update(blog);
             _blogRepository.SaveChanges();
 

@@ -41,12 +41,12 @@ namespace SkillHaven.Application.Features.Blogs.Command
             var blog = _blogRepository.GetById(request.Id);
 
             if (blog is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Blog"].Value);
-
-            blog.Title=request.Title;
-            blog.Content=request.Content;
             blog.UpdateDate=DateTime.Now;
-            blog.IsPublished=request.isPublished;
-            blog.PhotoPath=_utilService.SavePhoto(request.Photo, PhotoTypes.BlogPhoto.ToString()+"_"+ request.Title+DateTime.Now.ToLongDateString());
+
+            if(!string.IsNullOrEmpty(request.Title))  blog.Title=request.Title;
+            if (!string.IsNullOrEmpty(request.Content))  blog.Content=request.Content;
+            if(request?.isPublished!=null) blog.IsPublished=request.isPublished;
+            if(!string.IsNullOrEmpty(request.Photo)) blog.PhotoPath=_utilService.SavePhoto(request?.Photo, PhotoTypes.BlogPhoto.ToString()+"_"+ request.Title+DateTime.Now.ToLongDateString());
 
             _blogRepository.Update(blog);
             int result = _blogRepository.SaveChanges();

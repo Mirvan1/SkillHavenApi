@@ -20,7 +20,7 @@ namespace SkillHaven.Shared.Blog
         public Role? Role { get; set; }
         public string Email { get; set; }
         public int? Vote { get; set; }
-        public int? NOfReadings { get; set; }
+        public long? NOfReading { get; set; }
         public int BlogComments { get; set; }
         public string? PhotoPath { get; set; }
     }
