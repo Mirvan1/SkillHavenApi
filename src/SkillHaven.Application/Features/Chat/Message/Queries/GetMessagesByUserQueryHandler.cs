@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace SkillHaven.Application.Features.Chat.Message.Queries
 {
-    public class GetMessagesByUserQueryHandler : IRequestHandler<GetMessagesByUserQuery, PaginatedResult<GetMessagesByUserDto>>
+    public class GetMessagesByUserQueryHandler : IRequestHandler<GetMessagesByUserQuery, GetMessageByUserResponse>
     {
         public readonly IMessageRepository _messageRepository;
         public readonly IChatUserRepository _chatUserRepository;
@@ -39,7 +39,7 @@ namespace SkillHaven.Application.Features.Chat.Message.Queries
 
 
 
-        public Task<PaginatedResult<GetMessagesByUserDto>> Handle(GetMessagesByUserQuery request, CancellationToken cancellationToken)
+        public Task<GetMessageByUserResponse> Handle(GetMessagesByUserQuery request, CancellationToken cancellationToken)
         {
             if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
@@ -131,7 +131,17 @@ namespace SkillHaven.Application.Features.Chat.Message.Queries
             }).ToList();
             result.Data=getMessagesDtoList;
 
-            return Task.FromResult(result);
+            var getReceiverInfos = _userRepository.GetById(request.ReceiverUserId);
+            var response = new GetMessageByUserResponse()
+            {
+                Data=result.Data,
+                TotalCount=result.TotalCount,
+                TotalPages=result.TotalPages,
+                ReceiverUsername=getReceiverInfos?.FirstName+" "+getReceiverInfos?.LastName,
+                ReceiverProfilePicture=getReceiverInfos?.ProfilePicture
+            };
+
+            return Task.FromResult(response);
            // throw new NotImplementedException();
         }
     }

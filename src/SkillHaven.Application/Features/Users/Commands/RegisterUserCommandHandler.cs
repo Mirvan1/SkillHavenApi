@@ -81,11 +81,16 @@ namespace SkillHaven.Application.Features.Users.Commands
             Random random = new Random();
             string verificationCode=random.Next(0, 999999).ToString();
 
+            string htmlConfirmMessage = File.ReadAllText(Directory.GetCurrentDirectory()+"/StaticFiles/confirm-code-page.html");
+            htmlConfirmMessage=htmlConfirmMessage.Replace("{ConfirmationCode}", verificationCode);
+
+
             var mailSendResult = await _mailService.SendEmail(
              new Shared.User.Mail.MailInfo()
              {
-                 MailType=MailType.PlainText,
-                 EmailBody=$"Welcome to our app-{newUser.FirstName}{newUser.LastName}:Your Confirm Code:{verificationCode}",
+                 MailType=MailType.Html,
+                 //EmailBody=$"Welcome to our app-{newUser.FirstName}{newUser.LastName}:Your Confirm Code:{verificationCode}",
+                 EmailBody=htmlConfirmMessage,
                  EmailToName=newUser.FirstName+newUser.LastName,
                  EmailSubject="Registratation",
                  EmailToId=newUser.Email

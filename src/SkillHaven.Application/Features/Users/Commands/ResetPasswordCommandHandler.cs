@@ -55,13 +55,18 @@ namespace SkillHaven.Application.Features.Users.Commands
             _userRepository.Update(getUser);
             int result = _userRepository.SaveChanges();
 
+            string htmlConfirmMessage = File.ReadAllText(Directory.GetCurrentDirectory()+"/StaticFiles/reset-password-info-page.html");
+            htmlConfirmMessage=htmlConfirmMessage.Replace("{ChangeDateTime}", DateTime.Now.ToLongDateString());
+
+
             if (result>0)
                 await _mailService.SendEmail(new MailInfo()
                 {
-                    MailType=MailType.PlainText,
-                    EmailBody="Your password successfuly changed",
+                    MailType=MailType.Html,
+                  //  EmailBody="Your password successfuly changed",
+                    EmailBody=htmlConfirmMessage,
                     EmailToId=getUser.Email,
-                    EmailSubject="Password Changed",
+                    EmailSubject="Password Change",
                     EmailToName=getUser.FirstName +" "+getUser.LastName
                 });
 

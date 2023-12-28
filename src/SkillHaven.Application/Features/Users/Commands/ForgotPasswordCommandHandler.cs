@@ -50,10 +50,14 @@ namespace SkillHaven.Application.Features.Users.Commands
             queryParam.Add("email",getUser.Email);
             queryParam.Add("value", token);
 
+            string htmlConfirmMessage = File.ReadAllText(Directory.GetCurrentDirectory()+"/StaticFiles/forgot-password-page.html");
+            htmlConfirmMessage=htmlConfirmMessage.Replace("{ResetPasswordLink}", $"{clientEndpoint}?{queryParam}");
+            
             await _mailService.SendEmail(new Shared.User.Mail.MailInfo()
             {
-                MailType=MailType.PlainText,
-                EmailBody=$"{clientEndpoint}?{queryParam}",
+                MailType=MailType.Html,
+                //EmailBody=$"{clientEndpoint}?{queryParam}",
+                EmailBody=htmlConfirmMessage,
                 EmailToId=getUser.Email,
                 EmailSubject="Forgot Password ",
                 EmailToName=getUser.FirstName +" "+getUser.LastName
