@@ -124,6 +124,13 @@ namespace SkillHaven.WebApi.Controllers
             return Ok(result);
         }
 
+        [HttpPost("mail-checker"), AllowAnonymous]
+        public async Task<IActionResult> MailUserChecker(MailUserCheckerCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
 
         [HttpPost("auth"),AllowAnonymous]
         public async Task<IActionResult> Auth(AuthUserCommand command)//add controll by ip
