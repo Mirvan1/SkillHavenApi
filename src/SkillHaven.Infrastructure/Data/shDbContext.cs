@@ -51,7 +51,7 @@ namespace SkillHaven.Infrastructure.Data
             ConfigureChatUser(modelBuilder.Entity<ChatUser>());
             ConfigureChatUserConnection(modelBuilder.Entity<ChatUserConnection>());
             ConfigureMessages(modelBuilder.Entity<Message>());
-
+            ConfigureBlogVote(modelBuilder.Entity<BlogVote>());
 
 
         }
@@ -227,6 +227,17 @@ namespace SkillHaven.Infrastructure.Data
             builder.HasOne(uc => uc.ChatUser)
                 .WithMany(cu => cu.UserConnections)
                 .HasForeignKey(uc => uc.ChatUserId);
+        }
+
+
+        private void ConfigureBlogVote(EntityTypeBuilder<BlogVote> builder)
+        {
+            builder.ToTable("BlogVotes");
+            builder.HasKey(uc => uc.BlogVoteId);
+
+            builder.HasOne(uc => uc.User)
+                .WithMany(cu => cu.BlogVotes)
+                .HasForeignKey(uc => uc.UserId);
         }
 
     }

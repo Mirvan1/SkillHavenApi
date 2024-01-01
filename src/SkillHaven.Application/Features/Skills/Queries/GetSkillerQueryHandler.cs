@@ -60,11 +60,11 @@ namespace SkillHaven.Application.Features.Skills.Queries
 
             if (getUser.Role==Role.Supervisor.ToString())
             {
-                getSkiller.Rating=getUser.Supervisor.Rating;
+                getSkiller.Rating=_utilService.RateCalculator(getUser.UserId);//getUser.Supervisor.Rating;
             }
             if (getUser.Role==Role.Consultant.ToString())
             {
-                getSkiller.Rating=getUser.Consultant.Rating;
+                getSkiller.Rating=_utilService.RateCalculator(getUser.UserId); // getUser.Consultant.Rating;
             }
 
             return Task.FromResult(getSkiller);

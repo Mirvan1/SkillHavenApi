@@ -77,7 +77,8 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         ProfilePicture=_utilService.GetPhotoAsBase64( data.User?.ProfilePicture),
                         role=Enum.TryParse(data.User?.Role, out Role r) ? r : null,
                         Email=data?.User?.Email,
-                        UserId=data.UserId
+                        UserId=data.UserId,
+                        Rating=_utilService.RateCalculator(data.UserId)
                     };
                     result.Data.Add(skillerDto);
                 }

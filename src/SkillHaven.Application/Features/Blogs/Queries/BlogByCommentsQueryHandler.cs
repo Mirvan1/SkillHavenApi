@@ -26,7 +26,8 @@ namespace SkillHaven.Application.Features.Blogs.Queries
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         public readonly IStringLocalizer _localizer;
-        public BlogByCommentsQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IBlogCommentRepository blogCommentRepository)
+        private readonly IUtilService _utilService;
+        public BlogByCommentsQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IBlogCommentRepository blogCommentRepository, IUtilService utilService)
         {
             _httpContextAccessor=httpContextAccessor;
             _userService=userService;
@@ -34,6 +35,7 @@ namespace SkillHaven.Application.Features.Blogs.Queries
             _blogRepository=blogRepository;
             _blogCommentRepository=blogCommentRepository;
             _localizer=new Localizer();
+            _utilService=utilService;
         }
 
         public Task<PaginatedResult<BlogCommentDto>> Handle(BlogByCommentsQuery request, CancellationToken cancellationToken)
@@ -63,7 +65,8 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                         PublishDate=blogComment.PublishDate,
                         isPublished=blogComment.isPublished,
                         FullName=blogComment.User.FirstName + " "+ blogComment.User.LastName,
-                        BlogName=blogComment.Blog.Title
+                        BlogName=blogComment.Blog.Title,
+                        UserPhoto=_utilService.GetPhotoAsBase64(blogComment.User?.ProfilePicture)
                     };
                     result.Data.Add(blogCommentDto);
                 }

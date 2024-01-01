@@ -19,7 +19,7 @@ namespace SkillHaven.Shared.Skill
         public int? Experience { get; set; }
         public string? Description { get; set; }
 
-        public int? Rating { get; set; }
+        public decimal? Rating { get; set; }
 
         public int UserId { get; set; }
     }

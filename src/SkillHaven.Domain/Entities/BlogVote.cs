@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 
 namespace SkillHaven.Domain.Entities
 {
-    public class Consultant
+    public class BlogVote
     {
-        public int ConsultantId { get; set; }
+        public long BlogVoteId { get; set; }
+        public int BlogId { get; set; }
         public int UserId { get; set; }
-        public int Experience { get; set; }
-        public string? Description { get; set; }
-        public decimal? Rating { get; set; }
+        public bool VoteValue { get; set; }
         public User User { get; set; }
 
     }
-
 }

@@ -1,4 +1,5 @@
 using MediatR;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
@@ -32,14 +33,23 @@ using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using FluentValidation.AspNetCore;
+using SkillHaven.Shared.User;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
+builder.Services.AddFluentValidation(fv => {
+    fv.RegisterValidatorsFromAssemblyContaining<Program>();
+    var assembly = Assembly.Load("SkillHaven.Application");
+
+    fv.RegisterValidatorsFromAssembly(assembly);
+    // Alternatively, you can register individual validators like:
+    // fv.RegisterValidatorsFromAssemblyContaining<MyValidator>();
+});
 var configuration = new ConfigurationBuilder()
     .SetBasePath(builder.Environment.ContentRootPath)
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -66,6 +76,7 @@ var assm = Assembly.GetExecutingAssembly();
 
 builder.Services.AddHttpContextAccessor();//httpcontext accesor di
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.Configure<SkillRater>(builder.Configuration.GetSection("SkilRater"));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
@@ -80,6 +91,7 @@ builder.Services.AddScoped<IChatUserRepository, ChatUserRepository>();
 builder.Services.AddScoped<IUserConnectionRepository, ChatUserConnectionRepository>();
 builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IUtilService, UtilService>();
+builder.Services.AddScoped<IBlogVoteRepository, BlogVoteRepository>();
 
 builder.Services.AddTransient(typeof(ILoggerService<>), typeof(LoggerService<>));//init only once 
 

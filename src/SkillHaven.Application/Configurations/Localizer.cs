@@ -45,7 +45,15 @@ namespace SkillHaven.Application.Configurations
                 var value = _resourceManager.GetString(name, CultureInfo.CurrentCulture);
                 if (arguments.Length > 1)
                 {
-                    value = string.Format(value, arguments?.Skip(1).ToArray());
+                    try
+                    {
+                        value = string.Format(value, arguments?.Skip(1).ToArray());
+                    }
+                    catch(Exception e) 
+                    {
+                        value = string.Format(value, arguments? .ToArray());
+
+                    }
                 }
                 return new LocalizedString(name, value ?? name, value == null);
             }

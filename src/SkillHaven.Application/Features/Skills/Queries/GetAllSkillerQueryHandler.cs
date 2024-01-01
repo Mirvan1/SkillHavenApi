@@ -26,7 +26,6 @@ namespace SkillHaven.Application.Features.Skills.Queries
         public readonly IStringLocalizer _localizer;
         public readonly IUtilService _utilService;
 
-
         public GetAllSkillerQueryHandler(ISupervisorRepository supervisorRepository, IConsultantRepository consultantRepository, IMapper mapper, IStringLocalizer<GetAllSkillerQueryHandler> localizer, IUtilService utilService)
         {
             _supervisorRepository=supervisorRepository;
@@ -69,7 +68,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         ProfilePicture=_utilService.GetPhotoAsBase64( skiller?.User?.ProfilePicture),
                         SupervisorDescription=skiller.Description,
                         SupervisorExpertise=skiller.Expertise,
-                        Rating=skiller.Rating,
+                        Rating=_utilService.RateCalculator(skiller.UserId),
                         Description=skiller.Description,
                         UserId=skiller.UserId
                     };
@@ -113,7 +112,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         Email=skiller.User.Email,
                         ProfilePicture=_utilService.GetPhotoAsBase64(skiller?.User?.ProfilePicture),
                         Experience=skiller.Experience,
-                        Rating=skiller.Rating,
+                        Rating=_utilService.RateCalculator(skiller.UserId),
                         Description=skiller.Description,
                         UserId=skiller.UserId
                     };

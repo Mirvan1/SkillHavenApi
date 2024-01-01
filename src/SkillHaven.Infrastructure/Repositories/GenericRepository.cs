@@ -153,7 +153,7 @@ namespace SkillHaven.Infrastructure.Repositories
 
                 var list = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
                 int totalCount = query.Count();
-                int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+                int totalPages = (int)Math.Ceiling((decimal)totalCount / pageSize);
             
             return new PaginatedResult<T>
             {

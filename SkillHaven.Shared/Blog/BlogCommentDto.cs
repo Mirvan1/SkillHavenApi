@@ -18,5 +18,7 @@ namespace SkillHaven.Shared.Blog
         public string FullName { get; set; }
         public string BlogName { get; set; }
 
+        public string UserPhoto { get; set; }
+
     }
 }

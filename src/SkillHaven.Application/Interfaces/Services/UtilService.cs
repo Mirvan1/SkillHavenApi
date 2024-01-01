@@ -1,4 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using SkillHaven.Application.Interfaces.Repositories;
+using SkillHaven.Shared.User;
+using SkillHaven.Shared.User.Mail;
 using SkillHaven.Shared.UtilDtos;
 using System;
 using System.Collections.Generic;
@@ -12,9 +16,21 @@ namespace SkillHaven.Application.Interfaces.Services
     public class UtilService : IUtilService
     {
         private readonly IConfiguration _configuration;
+        private readonly IUserRepository _userRepository;
+        private readonly IBlogRepository _blogRepository;
+        private readonly IBlogVoteRepository _blogVoteRepository;
+        private readonly SkillRater skillRater;
+        //public UtilService(IConfiguration configuration)
+        //{
+        //    _configuration=configuration;
+        // }
 
-        public UtilService(IConfiguration configuration)
+        public UtilService(IUserRepository userRepository, IBlogRepository blogRepository, IBlogVoteRepository blogVoteRepository, IOptions<SkillRater> skillRaterOption, IConfiguration configuration)
         {
+            _userRepository=userRepository;
+            _blogRepository=blogRepository;
+            _blogVoteRepository=blogVoteRepository;
+            skillRater= skillRaterOption.Value;
             _configuration=configuration;
         }
 
@@ -65,5 +81,49 @@ namespace SkillHaven.Application.Interfaces.Services
 
             return base64Format+base64Image;
         }
+
+
+
+      public decimal RateCalculator(int userId)
+        {
+
+
+            var getUser = _userRepository.GetById(userId);
+
+            if (getUser is null) throw new ArgumentNullException("User cannot found");
+
+            if(getUser.Role.Equals(Role.Consultant) || getUser.Role.Equals( Role.Supervisor))
+                throw new ArgumentNullException("The user has no rater");
+
+            var blogs = _blogRepository.GetAll().Where(x => x.UserId==getUser.UserId).ToList();
+
+            if (blogs is null) throw new ArgumentNullException("Blog cannot found");
+
+            decimal totalBlogCount = (decimal)blogs.Count/(decimal)skillRater.NormBlog;
+            decimal? totalReaded = (decimal)blogs.Sum(x => x.NOfReading)/(decimal)skillRater.NormRead;
+            decimal totalVotes = getAllBlogVoteUser(blogs.Select(x => x.BlogId).ToList())/(decimal)skillRater.NormVote;
+
+            decimal averageTotals =(decimal) (totalBlogCount+totalReaded+totalVotes)/3;
+            return averageTotals*5;
+        }
+
+
+        public bool isPasswordEqual(string password, string confirmPassword)
+        => password.Equals(confirmPassword);
+
+
+        private decimal getAllBlogVoteUser( List<int> totalBlogIds)
+        {
+            decimal totalVote = 0;
+            if(totalBlogIds!=null && totalBlogIds.Count()>0)
+            {
+                foreach( var blogId in totalBlogIds)
+                {
+                    totalVote+=_blogVoteRepository.VotesByBlog(blogId);
+                }
+            }
+            return totalVote;
+        }
+
     }
 }

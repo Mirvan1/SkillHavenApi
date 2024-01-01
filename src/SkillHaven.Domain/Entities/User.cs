@@ -26,6 +26,7 @@ namespace SkillHaven.Domain.Entities
 
         public virtual ICollection<Blog> Blogs { get; set; }
         public virtual ICollection<BlogComments> BlogComments { get; set; }
+        public virtual ICollection<BlogVote> BlogVotes { get; set; }
 
     }
 }

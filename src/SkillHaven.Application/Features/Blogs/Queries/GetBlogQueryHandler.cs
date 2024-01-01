@@ -27,8 +27,9 @@ namespace SkillHaven.Application.Features.Blogs.Queries
 
         public readonly IStringLocalizer _localizer;
         public readonly IUtilService _utilService;
+        private readonly IBlogVoteRepository _blogVoteRepository;
 
-        public GetBlogQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IUserRepository userRepository, IUtilService utilService)
+        public GetBlogQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IUserRepository userRepository, IUtilService utilService, IBlogVoteRepository blogVoteRepository)
         {
             _httpContextAccessor=httpContextAccessor;
             _userService=userService;
@@ -37,6 +38,7 @@ namespace SkillHaven.Application.Features.Blogs.Queries
             _localizer=new Localizer();
             _userRepository=userRepository;
             _utilService=utilService;
+            _blogVoteRepository=blogVoteRepository;
         }
         public Task<GetBlogsDto> Handle(GetBlogQuery request, CancellationToken cancellationToken)
         {
@@ -54,6 +56,7 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                 var user = _userRepository.GetById(blog.UserId);
                 blogginMap.FullName =$"{user.FirstName} {user.LastName}";
                 blogginMap.PhotoPath=_utilService.GetPhotoAsBase64(blogginMap?.PhotoPath);
+                blogginMap.Vote=_blogVoteRepository.VotesByBlog(blog.BlogId);
             }            
             if (blog?.BlogComments != null) blogginMap.BlogComments= blog.BlogComments.Count();
             
