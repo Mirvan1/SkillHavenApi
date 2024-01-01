@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.CodeAnalysis.CSharp;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Shared.Exceptions;
@@ -21,19 +22,19 @@ namespace SkillHaven.Application.Features.Users.Commands
             _userRepository = userRepository;
             _userService=userService;
         }
-        public Task<bool> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
             if (!_userService.isUserAuthenticated()) throw new UserVerifyException("User is not authorized");
 
-            var getUser = _userRepository.GetById(request.UserId);
+            var getUser = await _userRepository.GetByIdAsync(request.UserId,cancellationToken);
 
             if (getUser is null || getUser is { IsDeleted: true }) throw new ArgumentNullException("User not found");
 
             getUser.IsDeleted=true;
             _userRepository.Update(getUser);
-            _userRepository.SaveChanges();
+            int result=await _userRepository.SaveChangesAsync(cancellationToken);
 
-            return Task.FromResult(true);
+            return  result>0;
 
         }
     }

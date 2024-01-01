@@ -28,7 +28,7 @@ namespace SkillHaven.Application.Features.Users.Queries
 
         public async Task<UserDto> Handle(GetUserQuery request, CancellationToken cancellationToken)
         {
-            var user =  _userRepository.GetById(request.UserId);
+            var user =  await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
             if (user == null)
                 throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User"].Value);

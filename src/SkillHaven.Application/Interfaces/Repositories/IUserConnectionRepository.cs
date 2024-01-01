@@ -17,7 +17,7 @@ namespace SkillHaven.Application.Interfaces.Repositories
 
         ChatUserConnection GetByConnnectionId(string connectionId);
 
-        public ChatUserConnection GetByChatUserId(int chatUserId);
-
+        public Task<ChatUserConnection> GetByChatUserIdAsync(int chatUserId, CancellationToken ct);
+        ChatUserConnection GetByChatUserId(int chatUserId);
     }
 }

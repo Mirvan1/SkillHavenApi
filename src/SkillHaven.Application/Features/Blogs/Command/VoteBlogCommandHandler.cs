@@ -38,11 +38,11 @@ namespace SkillHaven.Application.Features.Blogs.Command
             _localizer=new Localizer();
             _blogVoteRepository=blogVoteRepository;
         }
-        public Task<int> Handle(VoteBlogCommand request, CancellationToken cancellationToken)
+        public async Task<int> Handle(VoteBlogCommand request, CancellationToken cancellationToken)
         {
             if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
-            var blog = _blogRepository.GetById(request.BlogId);
+            var blog = await _blogRepository.GetByIdAsync(request.BlogId, cancellationToken);
 
             if (blog is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Blog"].Value);
 
@@ -58,20 +58,20 @@ namespace SkillHaven.Application.Features.Blogs.Command
             //return Task.FromResult((int)blog.Vote);
             if (getUser is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User"].Value);
 
-            var userVoted = _blogVoteRepository.GetByUserId(getUser.UserId,blog.BlogId);
+            var userVoted =await  _blogVoteRepository.GetByUserId(getUser.UserId,blog.BlogId,cancellationToken);
 
             if (userVoted is not null && userVoted?.Count >0) throw new UserVerifyException("You already give vote");
 
-            _blogVoteRepository.Add(new BlogVote()
+            _blogVoteRepository.AddAsync(new BlogVote()
             {
                 BlogId=blog.BlogId,
                 UserId=_userService.GetUser().UserId,
                 VoteValue=request.isIncreased
-            });
+            },cancellationToken);
 
-            _blogVoteRepository.SaveChanges();
+            await _blogVoteRepository.SaveChangesAsync(cancellationToken);
 
-            return Task.FromResult(_blogVoteRepository.VotesByBlog(blog.BlogId));
+            return await _blogVoteRepository.VotesByBlog(blog.BlogId,cancellationToken);
 
         }
     }

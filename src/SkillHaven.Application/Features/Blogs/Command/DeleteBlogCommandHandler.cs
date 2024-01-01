@@ -33,18 +33,18 @@ namespace SkillHaven.Application.Features.Blogs.Command
             _localizer=new Localizer();
 
         }
-        public Task<bool> Handle(DeleteBlogCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(DeleteBlogCommand request, CancellationToken cancellationToken)
         {
             if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
-            var blog = _blogRepository.GetById(request.Id);
+            var blog = await _blogRepository.GetByIdAsync(request.Id,cancellationToken);
 
             if (blog is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors","Blog"].Value);
             blog.IsPublished=false;
 
             _blogRepository.Update(blog);
-            int result = _blogRepository.SaveChanges();
-            return Task.FromResult(result>0);
+            int result = await _blogRepository.SaveChangesAsync(cancellationToken);
+            return  result>0;
         }
     }
 }

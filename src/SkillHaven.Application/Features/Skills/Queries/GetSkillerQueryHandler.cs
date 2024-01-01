@@ -36,11 +36,11 @@ namespace SkillHaven.Application.Features.Skills.Queries
             _utilService=utilService;
         }
 
-        public Task<SkillerDto> Handle(GetSkillerQuery request, CancellationToken cancellationToken)
+        public async Task<SkillerDto> Handle(GetSkillerQuery request, CancellationToken cancellationToken)
         {
             if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
-            var getUser = _userRepository.GetById(request.UserId, x => x.Supervisor, y => y.Consultant);
+            var getUser = await _userRepository.GetByIdAsync(request.UserId, cancellationToken,x => x.Supervisor, y => y.Consultant);
             if (getUser is null) throw new ArgumentNullException("User cannot find");
 
             if (getUser.Role==Role.User.ToString() || getUser.Role==Role.Admin.ToString()) throw new UnauthorizedAccessException("The user don t have any skill");
@@ -60,14 +60,14 @@ namespace SkillHaven.Application.Features.Skills.Queries
 
             if (getUser.Role==Role.Supervisor.ToString())
             {
-                getSkiller.Rating=_utilService.RateCalculator(getUser.UserId);//getUser.Supervisor.Rating;
+                getSkiller.Rating=await _utilService.RateCalculator(getUser.UserId,cancellationToken);//getUser.Supervisor.Rating;
             }
             if (getUser.Role==Role.Consultant.ToString())
             {
-                getSkiller.Rating=_utilService.RateCalculator(getUser.UserId); // getUser.Consultant.Rating;
+                getSkiller.Rating=await _utilService.RateCalculator(getUser.UserId,cancellationToken); // getUser.Consultant.Rating;
             }
 
-            return Task.FromResult(getSkiller);
+            return getSkiller;
         }
     }
 }

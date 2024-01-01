@@ -35,20 +35,20 @@ namespace SkillHaven.Application.Features.Blogs.Command
             _blogCommentRepository=blogCommentRepository;
             _localizer=new Localizer();
         }
-        public Task<bool> Handle(DeleteBlogCommentCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(DeleteBlogCommentCommand request, CancellationToken cancellationToken)
         {
 
             if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
-            var blogComment = _blogCommentRepository.GetById(request.BlogCommentId);
+            var blogComment = await _blogCommentRepository.GetByIdAsync(request.BlogCommentId,cancellationToken);
             if (blogComment is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors","Comment"].Value);
 
             blogComment.isPublished=false;
 
             _blogCommentRepository.Update(blogComment);
-            int result=_blogCommentRepository.SaveChanges();
+            int result=await _blogCommentRepository.SaveChangesAsync(cancellationToken);
 
-            return Task.FromResult(result>0);
+            return result>0;
         }
     }
 }

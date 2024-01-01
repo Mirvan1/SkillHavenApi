@@ -42,7 +42,7 @@ namespace SkillHaven.Application.Features.Users.Queries
                 throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User"].Value);
 
 
-            var user = _userRepository.GetById(getLoggedUser.UserId);
+            var user =await _userRepository.GetByIdAsync(getLoggedUser.UserId, cancellationToken);
 
             if (user == null)
                 throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User"].Value);

@@ -13,6 +13,6 @@ namespace SkillHaven.Application.Interfaces.Services
 
         bool isPasswordEqual(string password, string confirmPassword);
 
-        decimal RateCalculator(int userId);
+        Task<decimal> RateCalculator(int userId,CancellationToken ct);
     }
 }

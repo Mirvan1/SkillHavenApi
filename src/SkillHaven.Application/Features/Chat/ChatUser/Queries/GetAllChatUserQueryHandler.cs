@@ -35,7 +35,7 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
             _utilService=utilService;
         }
 
-        public Task<PaginatedResult<GetChatUserDto>> Handle(GetAllChatUserQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<GetChatUserDto>> Handle(GetAllChatUserQuery request, CancellationToken cancellationToken)
         {
             if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
@@ -60,8 +60,8 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
             {
                 foreach( var dbChatUser in dbResult.Data)
                 {
-                    var userConnection = _userConnectionRepository.GetByChatUserId(dbChatUser.Id);
-                    var userInfo = _userRepository.GetById(dbChatUser.UserId);
+                    var userConnection =await _userConnectionRepository.GetByChatUserIdAsync(dbChatUser.Id,cancellationToken);
+                    var userInfo =await _userRepository.GetByIdAsync(dbChatUser.UserId, cancellationToken);
                     GetChatUserDto getChatUserDto = new()
                     {
                         Id=dbChatUser.Id,
@@ -78,7 +78,7 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
                 }
             }
 
-            return Task.FromResult(chatUserDto);
+            return chatUserDto;
         }
 
     }

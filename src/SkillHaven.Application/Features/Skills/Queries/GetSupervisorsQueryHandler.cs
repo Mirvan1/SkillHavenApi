@@ -38,7 +38,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
 
 
 
-        public Task<PaginatedResult<SkillerDto>> Handle(GetSupervisorsQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<SkillerDto>> Handle(GetSupervisorsQuery request, CancellationToken cancellationToken)
         {
 
             Expression<Func<Supervisor, bool>> filterExpression = null;
@@ -78,12 +78,12 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         role=Enum.TryParse(data.User?.Role, out Role r) ? r : null,
                         Email=data?.User?.Email,
                         UserId=data.UserId,
-                        Rating=_utilService.RateCalculator(data.UserId)
+                        Rating= await _utilService.RateCalculator(data.UserId, cancellationToken)
                     };
                     result.Data.Add(skillerDto);
                 }
             }
-            return Task.FromResult(result);
+            return result;
         }
     }
 }

@@ -84,7 +84,7 @@ namespace SkillHaven.Application.Interfaces.Services
 
 
 
-      public decimal RateCalculator(int userId)
+      public async Task<decimal> RateCalculator(int userId,CancellationToken ct)
         {
 
 
@@ -95,13 +95,13 @@ namespace SkillHaven.Application.Interfaces.Services
             if(getUser.Role.Equals(Role.Consultant) || getUser.Role.Equals( Role.Supervisor))
                 throw new ArgumentNullException("The user has no rater");
 
-            var blogs = _blogRepository.GetAll().Where(x => x.UserId==getUser.UserId).ToList();
+            var blogs = await _blogRepository.GetAllAsync(ct, x => x.UserId==getUser.UserId);
 
             if (blogs is null) throw new ArgumentNullException("Blog cannot found");
 
-            decimal totalBlogCount = (decimal)blogs.Count/(decimal)skillRater.NormBlog;
+            decimal totalBlogCount = (decimal) Task.FromResult(blogs).Result.Count()/(decimal)skillRater.NormBlog;
             decimal? totalReaded = (decimal)blogs.Sum(x => x.NOfReading)/(decimal)skillRater.NormRead;
-            decimal totalVotes = getAllBlogVoteUser(blogs.Select(x => x.BlogId).ToList())/(decimal)skillRater.NormVote;
+            decimal totalVotes = await getAllBlogVoteUser(blogs.Select(x => x.BlogId).ToList(),ct)/(decimal)skillRater.NormVote;
 
             decimal averageTotals =(decimal) (totalBlogCount+totalReaded+totalVotes)/3;
             return averageTotals*5;
@@ -112,14 +112,14 @@ namespace SkillHaven.Application.Interfaces.Services
         => password.Equals(confirmPassword);
 
 
-        private decimal getAllBlogVoteUser( List<int> totalBlogIds)
+        private async Task<decimal> getAllBlogVoteUser( List<int> totalBlogIds,CancellationToken ct)
         {
             decimal totalVote = 0;
             if(totalBlogIds!=null && totalBlogIds.Count()>0)
             {
                 foreach( var blogId in totalBlogIds)
                 {
-                    totalVote+=_blogVoteRepository.VotesByBlog(blogId);
+                    totalVote+=await _blogVoteRepository.VotesByBlog(blogId,ct);
                 }
             }
             return totalVote;

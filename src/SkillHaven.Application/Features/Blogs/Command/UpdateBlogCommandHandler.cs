@@ -34,11 +34,11 @@ namespace SkillHaven.Application.Features.Blogs.Command
             _localizer=new Localizer();
             _utilService=utilService;
         }
-        public Task<bool> Handle(UpdateBlogCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(UpdateBlogCommand request, CancellationToken cancellationToken)
         {
             if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
             
-            var blog = _blogRepository.GetById(request.Id);
+            var blog = await _blogRepository.GetByIdAsync(request.Id,cancellationToken);
 
             if (blog is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Blog"].Value);
             blog.UpdateDate=DateTime.Now;
@@ -49,8 +49,8 @@ namespace SkillHaven.Application.Features.Blogs.Command
             if(!string.IsNullOrEmpty(request.Photo)) blog.PhotoPath=_utilService.SavePhoto(request?.Photo, PhotoTypes.BlogPhoto.ToString()+"_"+ request.Title+DateTime.Now.ToLongDateString());
 
             _blogRepository.Update(blog);
-            int result = _blogRepository.SaveChanges();
-            return Task.FromResult(result>0);
+            int result = await _blogRepository.SaveChangesAsync(cancellationToken);
+            return result>0;
         }
     }
 }

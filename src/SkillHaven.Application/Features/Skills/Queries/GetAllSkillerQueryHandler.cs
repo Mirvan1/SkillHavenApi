@@ -35,7 +35,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
             _utilService=utilService;
         }
 
-        public Task<PaginatedResult<SkillerDto>> Handle(GetAllSkillerQuery query, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<SkillerDto>> Handle(GetAllSkillerQuery query, CancellationToken cancellationToken)
         {//change this business to fetch from user table
             PaginatedResult<SkillerDto> skillers = new();
 
@@ -68,7 +68,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         ProfilePicture=_utilService.GetPhotoAsBase64( skiller?.User?.ProfilePicture),
                         SupervisorDescription=skiller.Description,
                         SupervisorExpertise=skiller.Expertise,
-                        Rating=_utilService.RateCalculator(skiller.UserId),
+                        Rating=await _utilService.RateCalculator(skiller.UserId,cancellationToken),
                         Description=skiller.Description,
                         UserId=skiller.UserId
                     };
@@ -112,7 +112,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         Email=skiller.User.Email,
                         ProfilePicture=_utilService.GetPhotoAsBase64(skiller?.User?.ProfilePicture),
                         Experience=skiller.Experience,
-                        Rating=_utilService.RateCalculator(skiller.UserId),
+                        Rating=await _utilService.RateCalculator(skiller.UserId,cancellationToken),
                         Description=skiller.Description,
                         UserId=skiller.UserId
                     };
@@ -130,7 +130,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
             //    skillers.AddRange(getSkillers);
             //}
 
-            return Task.FromResult(skillers);
+            return skillers;
         }
     }
 }

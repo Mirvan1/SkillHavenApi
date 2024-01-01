@@ -40,11 +40,11 @@ namespace SkillHaven.Application.Features.Blogs.Queries
             _utilService=utilService;
             _blogVoteRepository=blogVoteRepository;
         }
-        public Task<GetBlogsDto> Handle(GetBlogQuery request, CancellationToken cancellationToken)
+        public async Task<GetBlogsDto> Handle(GetBlogQuery request, CancellationToken cancellationToken)
         {
             if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
-            var blog = _blogRepository.GetById(request.Id);
+            var blog = await _blogRepository.GetByIdAsync(request.Id, cancellationToken);
 
             if (blog is null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Blog "].Value);
 
@@ -53,10 +53,10 @@ namespace SkillHaven.Application.Features.Blogs.Queries
 
             if(blog.UserId !=null)
             {
-                var user = _userRepository.GetById(blog.UserId);
+                var user =await _userRepository.GetByIdAsync(blog.UserId, cancellationToken);
                 blogginMap.FullName =$"{user.FirstName} {user.LastName}";
                 blogginMap.PhotoPath=_utilService.GetPhotoAsBase64(blogginMap?.PhotoPath);
-                blogginMap.Vote=_blogVoteRepository.VotesByBlog(blog.BlogId);
+                blogginMap.Vote= await _blogVoteRepository.VotesByBlog(blog.BlogId,cancellationToken);
             }            
             if (blog?.BlogComments != null) blogginMap.BlogComments= blog.BlogComments.Count();
             
@@ -64,9 +64,9 @@ namespace SkillHaven.Application.Features.Blogs.Queries
             else blog.NOfReading+=1;
             
             _blogRepository.Update(blog);
-            _blogRepository.SaveChanges();
+            await _blogRepository.SaveChangesAsync(cancellationToken);
 
-            return Task.FromResult(blogginMap);
+            return blogginMap;
         }
     }
 }

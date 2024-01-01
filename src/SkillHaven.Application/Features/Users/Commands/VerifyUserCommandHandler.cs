@@ -27,13 +27,13 @@ namespace SkillHaven.Application.Features.Users.Commands
         }
 
 
-        public Task<bool> Handle(VerifyUserCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(VerifyUserCommand request, CancellationToken cancellationToken)
         {
             if (request?.UserId == null) throw new ArgumentNullException(_localizer["NotFound", "Errors", "UserId"].Value);
 
             if (request?.MailSendCode == null) throw new ArgumentNullException(_localizer["NotFound", "Errors", "MailCode"].Value);
 
-            var user = _userRepository.GetById(request.UserId);
+            var user = await _userRepository.GetByIdAsync(request.UserId,cancellationToken);
 
             if (user == null) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "User"].Value);
 
@@ -41,8 +41,8 @@ namespace SkillHaven.Application.Features.Users.Commands
 
             user.HasMailConfirm=true;
             _userRepository.Update(user);
-            int result = _userRepository.SaveChanges();
-            return Task.FromResult(result>0);
+            int result =await _userRepository.SaveChangesAsync(cancellationToken);
+            return  result>0;
         }
     }
 }

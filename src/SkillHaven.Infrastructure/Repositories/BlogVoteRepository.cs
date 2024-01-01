@@ -1,4 +1,5 @@
-﻿using SkillHaven.Application.Interfaces.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Infrastructure.Data;
 using System;
@@ -15,17 +16,17 @@ namespace SkillHaven.Infrastructure.Repositories
         {
         }
 
-        public int VotesByBlog(int blogId)
+        public async Task<int> VotesByBlog(int blogId,CancellationToken ct)
         {
-            var voteList= entity.Where(x => x.BlogId == blogId).ToList();
+            var voteList= await entity.Where(x => x.BlogId == blogId).ToListAsync(ct);
             int upVotes=voteList.Where(x=>x.VoteValue==true).Count();
             int downVotes= voteList.Where(x => x.VoteValue==false).Count();
             return upVotes-downVotes;
         }
 
-       public List<BlogVote> GetByUserId(int userId,int blogId)
+       public async Task<List<BlogVote>> GetByUserId(int userId,int blogId,CancellationToken ct)
         {
-            return entity.Where(x => x.UserId == userId && x.BlogId == blogId).ToList();
+            return await entity.Where(x => x.UserId == userId && x.BlogId == blogId).ToListAsync(ct);
         }   
     }
 }

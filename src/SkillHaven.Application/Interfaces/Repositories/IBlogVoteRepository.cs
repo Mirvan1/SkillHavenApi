@@ -9,9 +9,9 @@ namespace SkillHaven.Application.Interfaces.Repositories
 {
     public interface IBlogVoteRepository : IRepository<BlogVote>
     {
-        int VotesByBlog(int blogId);
+        Task<int> VotesByBlog(int blogId,CancellationToken ct);
 
-        List<BlogVote> GetByUserId(int userId, int blogId);
+        Task<List<BlogVote>> GetByUserId(int userId, int blogId,CancellationToken ct);
 
     }
 }

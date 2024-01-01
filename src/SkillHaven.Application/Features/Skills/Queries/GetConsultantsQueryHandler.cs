@@ -35,7 +35,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
             _localizer=new Localizer();
             _utilService=utilService;
         }
-        public Task<PaginatedResult<SkillerDto>> Handle(GetConsultantsQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<SkillerDto>> Handle(GetConsultantsQuery request, CancellationToken cancellationToken)
         {
             Expression<Func<Consultant, bool>> filterExpression = null;
             Func<IQueryable<Consultant>, IOrderedQueryable<Consultant>> orderByExpression = null;
@@ -74,12 +74,12 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         role=Enum.TryParse(data.User?.Role, out Role r) ? r : null,
                         Email=data?.User?.Email,
                         UserId=data.UserId,
-                        Rating=_utilService.RateCalculator(data.UserId)
+                        Rating=await _utilService.RateCalculator(data.UserId,cancellationToken)
                     };
                     result.Data.Add(skillerDto);
                 }
             }
-            return Task.FromResult(result);
+            return result;
         }
 
     }

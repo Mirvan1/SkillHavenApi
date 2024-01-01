@@ -39,7 +39,7 @@ namespace SkillHaven.Application.Features.Blogs.Queries
             _utilService=utilService;
             _blogVoteRepository=blogVoteRepository;
         }
-        public Task<PaginatedResult<GetBlogsDto>> Handle(GetBlogsQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<GetBlogsDto>> Handle(GetBlogsQuery request, CancellationToken cancellationToken)
         {
             Expression<Func<Blog, bool>> filterExpression = null;
             Func<IQueryable<Blog>, IOrderedQueryable<Blog>> orderByExpression = null;
@@ -86,7 +86,7 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                         PublishDate=data.PublishDate,
                         BlogId=data.BlogId,
                         UpdateDate=(DateTime)data.UpdateDate,
-                        Vote=_blogVoteRepository.VotesByBlog(data.BlogId),
+                        Vote=await _blogVoteRepository.VotesByBlog(data.BlogId,cancellationToken),
                         NOfReading=data.NOfReading,
                         PhotoPath=_utilService.GetPhotoAsBase64(data.PhotoPath)
 
@@ -94,7 +94,7 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                     result.Data.Add(getBlogsDto);
                 }
              }
-            return Task.FromResult(result);
+            return result;
 
         }
     }
