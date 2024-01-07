@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace SkillHaven.Shared.Blog
 {
-    public class GetBlogsQuery : PaginatedRequest, IRequest<PaginatedResult<GetBlogsDto>>
+    public class GetBlogTopicsQuery : PaginatedRequest, IRequest<PaginatedResult<GetBlogTopicsDto>>
     {
-        public int? BlogTopicId { get; set; }
     }
 }

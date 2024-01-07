@@ -20,7 +20,7 @@ namespace SkillHaven.WebApi.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] GetBlogsQuery query)
+        public async Task<IActionResult> GetAll([FromQuery]  GetBlogsQuery query)
         {
             var getAll = await _mediator.Send(query);
 
@@ -105,5 +105,15 @@ namespace SkillHaven.WebApi.Controllers
             var deleted = await _mediator.Send(query);
             return Ok(deleted);
         }
+
+
+        [HttpGet("/topics")]
+        public async Task<IActionResult> GetBlogTopics([FromQuery]GetBlogTopicsQuery query)
+        {
+            var topics = await _mediator.Send(query);
+            return Ok(topics);
+        }
+
+
     }
 }

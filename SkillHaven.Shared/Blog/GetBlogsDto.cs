@@ -23,5 +23,8 @@ namespace SkillHaven.Shared.Blog
         public long? NOfReading { get; set; }
         public int BlogComments { get; set; }
         public string? PhotoPath { get; set; }
+        public string UserPhotoPath { get; set; }
+        public int? BlogTopicId { get; set; }
+        public string? BlogTopicName { get; set; }
     }
 }

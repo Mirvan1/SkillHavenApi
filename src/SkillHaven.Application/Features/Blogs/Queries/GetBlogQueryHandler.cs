@@ -10,6 +10,7 @@ using SkillHaven.Shared.Blog;
 using SkillHaven.Shared.Exceptions;
 using SkillHaven.Shared.Infrastructure.Exceptions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,8 +29,10 @@ namespace SkillHaven.Application.Features.Blogs.Queries
         public readonly IStringLocalizer _localizer;
         public readonly IUtilService _utilService;
         private readonly IBlogVoteRepository _blogVoteRepository;
+        private readonly IBlogTopicRepository _blogTopicRepository;
 
-        public GetBlogQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IUserRepository userRepository, IUtilService utilService, IBlogVoteRepository blogVoteRepository)
+
+        public GetBlogQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IUserRepository userRepository, IUtilService utilService, IBlogVoteRepository blogVoteRepository, IBlogTopicRepository blogTopicRepository)
         {
             _httpContextAccessor=httpContextAccessor;
             _userService=userService;
@@ -39,6 +42,7 @@ namespace SkillHaven.Application.Features.Blogs.Queries
             _userRepository=userRepository;
             _utilService=utilService;
             _blogVoteRepository=blogVoteRepository;
+            _blogTopicRepository=blogTopicRepository;
         }
         public async Task<GetBlogsDto> Handle(GetBlogQuery request, CancellationToken cancellationToken)
         {
@@ -57,6 +61,12 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                 blogginMap.FullName =$"{user.FirstName} {user.LastName}";
                 blogginMap.PhotoPath=_utilService.GetPhotoAsBase64(blogginMap?.PhotoPath);
                 blogginMap.Vote= await _blogVoteRepository.VotesByBlog(blog.BlogId,cancellationToken);
+                var getBlogTopic = await _blogTopicRepository.GetByIdAsync((int)blogginMap.BlogTopicId,cancellationToken);
+                if (getBlogTopic!=null)
+                {
+                    blogginMap.BlogTopicName=getBlogTopic.TopicName;
+                    blogginMap.BlogTopicId=getBlogTopic.BlogTopicId;
+                }
             }            
             if (blog?.BlogComments != null) blogginMap.BlogComments= blog.BlogComments.Count();
             

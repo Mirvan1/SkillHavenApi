@@ -47,6 +47,7 @@ namespace SkillHaven.Application.Features.Blogs.Command
             if (!string.IsNullOrEmpty(request.Content))  blog.Content=request.Content;
             if(request?.isPublished!=null) blog.IsPublished=request.isPublished;
             if(!string.IsNullOrEmpty(request.Photo)) blog.PhotoPath=_utilService.SavePhoto(request?.Photo, PhotoTypes.BlogPhoto.ToString()+"_"+ request.Title+DateTime.Now.ToLongDateString());
+            if (request.BlogTopicId!=null) blog.BlogTopicId=request.BlogTopicId;
 
             _blogRepository.Update(blog);
             int result = await _blogRepository.SaveChangesAsync(cancellationToken);

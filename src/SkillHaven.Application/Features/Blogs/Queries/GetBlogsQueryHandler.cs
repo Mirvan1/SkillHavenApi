@@ -12,6 +12,7 @@ using SkillHaven.Shared.Exceptions;
 using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -28,8 +29,9 @@ namespace SkillHaven.Application.Features.Blogs.Queries
         public readonly IStringLocalizer _localizer;
         public readonly IUtilService _utilService;
         private readonly IBlogVoteRepository _blogVoteRepository;
+        private readonly IBlogTopicRepository _blogTopicRepository;
 
-        public GetBlogsQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IUtilService utilService, IBlogVoteRepository blogVoteRepository)
+        public GetBlogsQueryHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, IUtilService utilService, IBlogVoteRepository blogVoteRepository, IBlogTopicRepository blogTopicRepository)
         {
             _httpContextAccessor=httpContextAccessor;
             _userService=userService;
@@ -38,6 +40,7 @@ namespace SkillHaven.Application.Features.Blogs.Queries
             _localizer=new Localizer();
             _utilService=utilService;
             _blogVoteRepository=blogVoteRepository;
+            _blogTopicRepository=blogTopicRepository;
         }
         public async Task<PaginatedResult<GetBlogsDto>> Handle(GetBlogsQuery request, CancellationToken cancellationToken)
         {
@@ -57,12 +60,17 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                 filterExpression = entity => entity.Content.Contains(request.Filter);
             }
 
+            if (request.BlogTopicId is not null)
+            {
+                filterExpression = entity => entity.BlogTopicId==request.BlogTopicId;
+            }
+
             var includeProperties = new Expression<Func<Blog, object>>[]
            {
                 e => e.User,
            };
 
-            var dbResult = _blogRepository.GetPaged(request.Page, request.PageSize, request.OrderByPropertname, request.OrderBy, filterExpression, includeProperties);
+                var dbResult = _blogRepository.GetPaged(request.Page, request.PageSize, request.OrderByPropertname, request.OrderBy, filterExpression, includeProperties);
 
             PaginatedResult<GetBlogsDto> result = new()
             {
@@ -77,6 +85,7 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                     GetBlogsDto getBlogsDto = new()
                     {
                         FullName=data.User?.FirstName+" "+data.User?.LastName,
+                        UserPhotoPath=data.User.ProfilePicture,
                         Title=data.Title,
                         Content=data.Content,
                         //ProfilePicture=data.User?.ProfilePicture,
@@ -88,8 +97,9 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                         UpdateDate=(DateTime)data.UpdateDate,
                         Vote=await _blogVoteRepository.VotesByBlog(data.BlogId,cancellationToken),
                         NOfReading=data.NOfReading,
-                        PhotoPath=_utilService.GetPhotoAsBase64(data.PhotoPath)
-
+                        PhotoPath=_utilService.GetPhotoAsBase64(data.PhotoPath),
+                        BlogTopicId=(int)data.BlogTopicId,
+                        BlogTopicName= _blogTopicRepository.GetById((int)data.BlogTopicId).TopicName
                     };
                     result.Data.Add(getBlogsDto);
                 }

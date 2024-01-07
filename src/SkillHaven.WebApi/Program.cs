@@ -92,6 +92,7 @@ builder.Services.AddScoped<IUserConnectionRepository, ChatUserConnectionReposito
 builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IUtilService, UtilService>();
 builder.Services.AddScoped<IBlogVoteRepository, BlogVoteRepository>();
+builder.Services.AddScoped<IBlogTopicRepository, BlogTopicRepository>();
 
 builder.Services.AddTransient(typeof(ILoggerService<>), typeof(LoggerService<>));//init only once 
 

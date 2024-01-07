@@ -45,6 +45,7 @@ namespace SkillHaven.Application.Features.Blogs.Command
                 Title=request.Title,
                 IsPublished=request.isPublished,
                 //PublishDate=default,
+                BlogTopicId=request.BlogTopicId,
                 UserId=_userService.GetUser().UserId,
                 //User=_mapper.Map<User>(_userService.GetUser())
                 PhotoPath=_utilService.SavePhoto(request.Photo,PhotoTypes.BlogPhoto.ToString()+"_"+ request.Title+DateTime.Now.ToLongDateString())

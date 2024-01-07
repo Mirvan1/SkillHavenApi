@@ -52,7 +52,7 @@ namespace SkillHaven.Infrastructure.Data
             ConfigureChatUserConnection(modelBuilder.Entity<ChatUserConnection>());
             ConfigureMessages(modelBuilder.Entity<Message>());
             ConfigureBlogVote(modelBuilder.Entity<BlogVote>());
-
+            ConfigureBlogTopic(modelBuilder.Entity<BlogTopic>());
 
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -154,6 +154,12 @@ namespace SkillHaven.Infrastructure.Data
             builder.HasMany(b => b.BlogComments)
         .WithOne(bc => bc.Blog)
         .HasForeignKey(bc => bc.BlogId);
+
+            builder.HasOne(bc => bc.BlogTopics)
+             .WithMany(b => b.Blogs)
+             .HasForeignKey(bc => bc.BlogTopicId);
+
+
         }
 
         private void ConfigureBlogComments(EntityTypeBuilder<BlogComments> builder)
@@ -238,6 +244,18 @@ namespace SkillHaven.Infrastructure.Data
             builder.HasOne(uc => uc.User)
                 .WithMany(cu => cu.BlogVotes)
                 .HasForeignKey(uc => uc.UserId);
+        }
+
+
+        private void ConfigureBlogTopic(EntityTypeBuilder<BlogTopic> builder)
+        {
+            builder.ToTable("BlogTopics");
+            builder.HasKey(uc => uc.BlogTopicId);
+            builder.Property(x => x.TopicName).IsRequired();
+
+            builder.HasMany(b => b.Blogs)
+             .WithOne(bc => bc.BlogTopics)
+             .HasForeignKey(bc => bc.BlogTopicId);
         }
 
     }

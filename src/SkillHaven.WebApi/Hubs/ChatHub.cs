@@ -77,6 +77,10 @@ namespace SkillHaven.WebApi.Hubs
             var getSenderChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
             if (getSenderChatUser is null) throw new HubConnectionException(" sender not found");
 
+            var getSenderConnectionInfo = _userConnectionRepo.GetByChatUserId(getSenderChatUser.Id);
+            if (getSenderChatUser is null) throw new HubConnectionException(" sender not found");
+
+
 
             var getReceiverChatUser = _chatUserRepository.getByUserId(receiverId);
             if (getReceiverChatUser is null) throw new HubConnectionException(" receiver not found");
@@ -87,7 +91,7 @@ namespace SkillHaven.WebApi.Hubs
                 Content = messageContent,
                 Timestamp = DateTime.Now,
                 ReceiverId = getReceiverChatUser.Id,
-                MessageType = MessageType.All.ToString(),
+                MessageType = MessageType.Client.ToString(),
             };
 
             _messageRepository.Add(messageClient);
@@ -99,8 +103,11 @@ namespace SkillHaven.WebApi.Hubs
                 throw new HubConnectionException("Receiver can not find");
             }
 
+            await Clients.Client(getSenderConnectionInfo.ConnectionId).SendAsync($"SenderMessageToClient", receiverId, messageContent);
 
             await Clients.Client(receiver.ConnectionId).SendAsync($"ReceiveMessageToClient", currentUser.UserId.ToString(), messageContent);
+            await Clients.Client(getSenderConnectionInfo.ConnectionId).SendAsync($"ReceiveMessageToClient", receiverId, messageContent);
+
         }
 
         public async Task JoinGroup(string groupName)
