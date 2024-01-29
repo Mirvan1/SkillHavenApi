@@ -35,76 +35,43 @@ using System.Security.Cryptography;
 using System.Text;
 using FluentValidation.AspNetCore;
 using SkillHaven.Shared.User;
+using SkillHaven.Infrastructure.Extensions;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
+ 
 builder.Services.AddControllers();
 
 builder.Services.AddFluentValidation(fv => {
     fv.RegisterValidatorsFromAssemblyContaining<Program>();
     var assembly = Assembly.Load("SkillHaven.Application");
 
-    fv.RegisterValidatorsFromAssembly(assembly);
-    // Alternatively, you can register individual validators like:
-    // fv.RegisterValidatorsFromAssemblyContaining<MyValidator>();
+    fv.RegisterValidatorsFromAssembly(assembly); 
 });
-var configuration = new ConfigurationBuilder()
-    .SetBasePath(builder.Environment.ContentRootPath)
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .Build();
-var connStr=configuration.GetConnectionString("DefaultConnection");
-
-
-var logger = NLog.LogManager.Setup().LoadConfigurationFromFile("nlog.config").GetCurrentClassLogger();
-
-//logger.Error("ssss");   
+  
 builder.Host.UseNLog();
 builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
 builder.Logging.AddNLog();
 
+builder.Services.AddDBContext(builder.Configuration, LogManager.Setup().LoadConfigurationFromFile("nlog.config").GetCurrentClassLogger());
 
 
+ 
 
-builder.Services.AddDbContext<shDbContext>(options =>
-              options.UseSqlServer("Data Source=DESKTOP-HGKR5P9\\MSSQLSERVERDB;Initial Catalog=SkillHavenDB;Integrated Security=True;Encrypt=false;")
-              .LogTo(logger.Warn,Microsoft.Extensions.Logging.LogLevel.Warning));
-var assm = Assembly.GetExecutingAssembly();
-
-
-builder.Services.AddHttpContextAccessor();//httpcontext accesor di
+builder.Services.AddHttpContextAccessor(); 
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.Configure<SkillRater>(builder.Configuration.GetSection("SkilRater"));
+builder.Services.AddDIRegistration();
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+ 
 
-builder.Services.AddScoped<ISupervisorRepository, SupervisorRepository>();
-
-builder.Services.AddScoped<IBlogRepository, BlogRepository>();
-builder.Services.AddScoped<IConsultantRepository, ConsultantRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IBlogCommentRepository, BlogCommentRepository>();
-builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-builder.Services.AddScoped<IChatUserRepository, ChatUserRepository>();
-builder.Services.AddScoped<IUserConnectionRepository, ChatUserConnectionRepository>();
-builder.Services.AddScoped<IMailService, MailService>();
-builder.Services.AddScoped<IUtilService, UtilService>();
-builder.Services.AddScoped<IBlogVoteRepository, BlogVoteRepository>();
-builder.Services.AddScoped<IBlogTopicRepository, BlogTopicRepository>();
-
-builder.Services.AddTransient(typeof(ILoggerService<>), typeof(LoggerService<>));//init only once 
-
-//builder.Services.AddScoped<IStringLocalizer>(sp => new Localizer("Errors"));
-
-
-//builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-var ss = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.Contains("SkillHaven")).ToArray();
+ var assm = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.Contains("SkillHaven")).ToArray();
 
 builder.Services.AddMediatR(cfg =>
 {
-    cfg.RegisterServicesFromAssemblies(ss );
+    cfg.RegisterServicesFromAssemblies(assm );
     
 });
 
@@ -112,34 +79,10 @@ builder.Services.AddMediatR(cfg =>
 
 //builder.Services.AddMediatR(cfg =>
 //     cfg.RegisterServicesFromAssembly(typeof(GetUserQueryHandler).Assembly));
-builder.Services.AddAutoMapper(ss);
+builder.Services.AddAutoMapper(assm);
 
-
-builder.Services.AddAuthentication().AddJwtBearer(options =>
-{
-    options.TokenValidationParameters=new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
-    {
-        ValidateIssuerSigningKey=true,
-        ValidateAudience=false,
-        ValidateIssuer=false,
-        IssuerSigningKey=new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["secret-key"]))
-        
-};
-
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var accessToken = context.Request.Query["access_token"];
-            if (!string.IsNullOrEmpty(accessToken) && context.Request.Path.StartsWithSegments("/chatHub"))
-            {
-                context.Token = accessToken;
-            }
-            return Task.CompletedTask;
-        }
-    };
-});
-
+builder.Services.AddAuth(builder.Configuration);
+ 
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options=>{
@@ -151,29 +94,22 @@ builder.Services.AddSwaggerGen(options=>{
         Type = SecuritySchemeType.ApiKey
     });
     options.OperationFilter<AcceptLanguageOperationFilter>();
-
-
     options.OperationFilter<SecurityRequirementsOperationFilter>();
-
-
 });
-
-builder.Services.AddCors(options =>
+ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
-        builder => builder.WithOrigins("http://localhost:8000", "http://localhost:4200", "http://127.0.0.1:8080") 
+                //builder => builder.WithOrigins("http://localhost:8000", "http://localhost:4200", "http://127.0.0.1:8080") 
+         opt => opt.WithOrigins(builder.Configuration.GetSection("CorsPolicy:AllowedOrigins").Value.Split(","))
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials());
 });
-
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[] { "en-EN", "tr-TR" };
-
-
 
     options.SetDefaultCulture(supportedCultures[0])
           .AddSupportedCultures(supportedCultures)
@@ -187,26 +123,22 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 });
 
-
 builder.Services.AddSignalR();
 
 
-
-//var logger = NLog.LogManager.Setup().LoadConfigurationFromXml("nlog.config").GetCurrentClassLogger();
- 
-
 var app = builder.Build();
 
-using var serviceScope = app.Services.CreateScope();
-var logger2 = serviceScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-logger2.LogInformation("This should log from the Program class.");
+//using var serviceScope = app.Services.CreateScope();
+//var logger2 = serviceScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+//logger2.LogInformation("This should log from the Program class.");
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
 app.UseCors("CorsPolicy");
 var localizeOptions = app.Services.GetService<IOptions<RequestLocalizationOptions>>();
 app.UseRequestLocalization(localizeOptions.Value);

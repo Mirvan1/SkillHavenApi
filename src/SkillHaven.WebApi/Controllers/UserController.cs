@@ -31,16 +31,7 @@ namespace SkillHaven.WebApi.Controllers
 
         }
 
-
-
-        //[HttpPost]
-        //public async Task<IActionResult> CreateUser(CreateUserCommand command)
-        //{
-        //    int userId = await _mediator.Send(command);
-        //    return Ok(userId);
-        //}
-
-
+ 
         [HttpGet("get-logged-user")]
         public async Task<IActionResult> GetUser()
         {

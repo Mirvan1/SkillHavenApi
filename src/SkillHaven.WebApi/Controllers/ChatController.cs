@@ -19,23 +19,23 @@ namespace SkillHaven.WebApi.Controllers
         [HttpGet("GetMessageByUser")]
         public async Task<IActionResult> GetMessages([FromQuery] GetMessagesByUserQuery query)
         {
-            var getMessages = await _mediator.Send(query);
-            return Ok(getMessages);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
 
         [HttpGet("GetAllChatUser")]
         public async Task<IActionResult> GetAllChatUser([FromQuery] GetAllChatUserQuery query)
         {
-            var getAllChatUser = await _mediator.Send(query);
-            return Ok(getAllChatUser);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
         [HttpGet("GetOnlineUsers")]
         public async Task<IActionResult> GetOnlineUsers([FromQuery] GetOnlineUsersQuery query)
         {
-            var getOnlineUsers = await _mediator.Send(query);
-            return Ok(getOnlineUsers);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
 
@@ -43,8 +43,8 @@ namespace SkillHaven.WebApi.Controllers
         public async Task<IActionResult> GetChatUser(int UserId)
         {
             GetChatUserQuery query = new() { UserId=UserId };
-            var getChatUser = await _mediator.Send(query);
-            return Ok(getChatUser);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
 

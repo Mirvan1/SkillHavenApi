@@ -19,9 +19,8 @@ namespace SkillHaven.WebApi.Controllers
         [HttpGet("GetAllSkiller")]
         public async Task<IActionResult> GetAll([FromQuery] GetAllSkillerQuery query)
         {
-            var getAll = await _mediator.Send(query);
-
-            return Ok(getAll);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
 
@@ -29,24 +28,23 @@ namespace SkillHaven.WebApi.Controllers
         [HttpGet("GetSupervisors")]
         public async Task<IActionResult> GetSupervisors([FromQuery]GetSupervisorsQuery query)
         {
-            var getAll = await _mediator.Send(query);
-
-            return Ok(getAll);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
 
         [HttpGet("GetConsultants")]
         public async Task<IActionResult> GetConsultants([FromQuery] GetConsultantsQuery query)
         {
-            var getAll = await _mediator.Send(query);
-
-            return Ok(getAll);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
         [HttpGet("GetSkiller/{UserId}")]
         public async Task<IActionResult> GetSkiller(int UserId)
         {
-            return Ok(await _mediator.Send(new GetSkillerQuery() { UserId=UserId }));
+            var result = await _mediator.Send(new GetSkillerQuery() { UserId = UserId });
+            return Ok(result);
         }
 
     }

@@ -171,10 +171,6 @@ namespace SkillHaven.Infrastructure.Repositories
         #endregion
 
 
-
-
-
-
         #region async 
 
 
@@ -308,22 +304,5 @@ namespace SkillHaven.Infrastructure.Repositories
 
         #endregion
 
-
-
-
-
-
-
-        //public IQueryable<T> GetAllIncluding(params Expression<Func<T, object>>[] includeProperties)
-        //{
-        //    IQueryable<T> query = _dbContext;
-
-        //    foreach (var includeProperty in includeProperties)
-        //    {
-        //        query = query.Include(includeProperty);
-        //    }
-
-        //    return query;
-        //}
     }
 }

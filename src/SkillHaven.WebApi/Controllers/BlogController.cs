@@ -22,19 +22,16 @@ namespace SkillHaven.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery]  GetBlogsQuery query)
         {
-            var getAll = await _mediator.Send(query);
-
-            return Ok(getAll);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
 
         [HttpGet("{Id}")]
         public async Task<IActionResult> Get(int Id)
-        {
-            var query = new GetBlogQuery() { Id=Id };
-            var getAll = await _mediator.Send(query);
-
-            return Ok(getAll);
+        {;
+            var result = await _mediator.Send(new GetBlogQuery() { Id = Id });
+            return Ok(result);
         }
 
 
@@ -42,76 +39,64 @@ namespace SkillHaven.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create( CreateBlogCommand  command)
         {
-            var create = await _mediator.Send(command);
-
-            return Ok(create);
+            var result = await _mediator.Send(command);
+            return Ok(result);
         }
 
 
         [HttpPut]
         public async Task<IActionResult> Create(UpdateBlogCommand command)
         {
-            var update = await _mediator.Send(command);
+            var result = await _mediator.Send(command);
 
-            return Ok(update);
+            return Ok(result);
         }
 
         [HttpDelete]
         public async Task<IActionResult> Delete(DeleteBlogCommand command)
         {
-            var delete = await _mediator.Send(command);
-
-            return Ok(delete);
+            var result = await _mediator.Send(command);
+            return Ok(result);
         }
 
 
         [HttpPut("/vote")]
         public async Task<IActionResult> VoteBlog(VoteBlogCommand command)
         {
-            var update = await _mediator.Send(command);
-
-            return Ok(update);
+            var result = await _mediator.Send(command);
+            return Ok(result);
         }
 
 
         [HttpPost("/comments")]
         public async Task<IActionResult> GetBlogComments(  BlogByCommentsQuery query)
         {
-            //var query = new BlogByCommentsQuery()
-            //{
-            //    BlogId=blogId,
-            //    Page=Page,
-            //    PageSize=PageSize,
-            //    OrderBy=OrderBy,
-            //    OrderByPropertname=OrderByParameter
-            //};
-            var comments = await _mediator.Send(query);
-            return Ok(comments);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
 
         [HttpPost("/commment/create")]
         public async Task<IActionResult> CreateBlogComment([FromBody] CreateBlogCommentCommand command)
         {
-            var create = await _mediator.Send(command);
-            return Ok(create);
+            var result = await _mediator.Send(command);
+            return Ok(result);
         }
 
 
         [HttpDelete("comment/{commentId}")]
         public async Task<IActionResult> DeleteBlogComment(int commentId)
         {
-            var query = new DeleteBlogCommentCommand() { BlogCommentId=commentId };
-            var deleted = await _mediator.Send(query);
-            return Ok(deleted);
+            var result = await _mediator.Send(new DeleteBlogCommentCommand() { BlogCommentId = commentId });
+            return Ok(result);
         }
 
 
         [HttpGet("/topics")]
         public async Task<IActionResult> GetBlogTopics([FromQuery]GetBlogTopicsQuery query)
         {
-            var topics = await _mediator.Send(query);
-            return Ok(topics);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
 
