@@ -78,6 +78,8 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                 TotalPages=dbResult.TotalPages,
             };
 
+           
+
             if (dbResult.Data is not null)
             {
                 foreach (var data in dbResult.Data)
@@ -103,7 +105,12 @@ namespace SkillHaven.Application.Features.Blogs.Queries
                     };
                     result.Data.Add(getBlogsDto);
                 }
-             }
+                if (request.OrderByPropertname.Equals("Vote"))
+                {
+                   result.Data=request.OrderBy? result.Data.OrderBy(x => x.Vote).ToList(): 
+                        result.Data.OrderByDescending(x => x.Vote).ToList();
+                }
+            }
             return result;
 
         }

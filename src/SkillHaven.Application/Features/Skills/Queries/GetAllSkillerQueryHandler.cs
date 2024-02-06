@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Localization;
+using Org.BouncyCastle.Asn1.Ocsp;
 using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
@@ -47,12 +48,13 @@ namespace SkillHaven.Application.Features.Skills.Queries
             {
                 filterExpressionSupervisor = entity => entity.User.FirstName.Contains(query.SearchByName);
             }
+            string OrderByPropertyname =  query.OrderByPropertname.Equals("Experience") ? "Rating" : query.OrderByPropertname;
 
             var includePropertiesSupervisor = new Expression<Func<Supervisor, object>>[]
             {
                 e => e.User,
             };
-            var dbResultSupervisor = _supervisorRepository.GetPaged(query.Page, query.PageSize/2, query.OrderByPropertname, query.OrderBy, filterExpressionSupervisor, includePropertiesSupervisor);
+            var dbResultSupervisor = _supervisorRepository.GetPaged(query.Page, query.PageSize/2, OrderByPropertyname, query.OrderBy, filterExpressionSupervisor, includePropertiesSupervisor);
 
 
             if (dbResultSupervisor is not null)
@@ -123,13 +125,11 @@ namespace SkillHaven.Application.Features.Skills.Queries
             }
 
 
-            //    var getAllConsultancy = _consultantRepository.GetAll();
-            //if (getAllConsultancy is not null)
-            //{
-            //    var getSkillers = _mapper.Map<List<SkillerDto>>(getAllConsultancy);
-            //    skillers.AddRange(getSkillers);
-            //}
-
+            if (query.OrderByPropertname.Equals("Rating"))
+            {
+                skillers.Data = query.OrderBy ? skillers.Data.OrderBy(x => x.Rating).ToList() :
+                     skillers.Data.OrderByDescending(x => x.Rating).ToList();
+            }
             return skillers;
         }
     }

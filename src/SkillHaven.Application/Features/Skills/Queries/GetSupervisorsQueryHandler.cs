@@ -11,6 +11,7 @@ using SkillHaven.Shared.Exceptions;
 using SkillHaven.Shared.Skill;
 using SkillHaven.Shared.User;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -81,6 +82,12 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         Rating= await _utilService.RateCalculator(data.UserId, cancellationToken)
                     };
                     result.Data.Add(skillerDto);
+                }
+
+                if (request.OrderByPropertname.Equals("Rating"))
+                {
+                    result.Data = request.OrderBy ? result.Data.OrderBy(x => x.Rating).ToList() :
+                         result.Data.OrderByDescending(x => x.Rating).ToList();
                 }
             }
             return result;

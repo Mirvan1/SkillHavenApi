@@ -78,6 +78,11 @@ namespace SkillHaven.Application.Features.Skills.Queries
                     };
                     result.Data.Add(skillerDto);
                 }
+                if (request.OrderByPropertname.Equals("Rating"))
+                {
+                    result.Data = request.OrderBy ? result.Data.OrderBy(x => x.Rating).ToList() :
+                         result.Data.OrderByDescending(x => x.Rating).ToList();
+                }
             }
             return result;
         }
