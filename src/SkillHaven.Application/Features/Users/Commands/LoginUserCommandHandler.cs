@@ -1,12 +1,17 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
-using SkillHaven.Shared;
+using SkillHaven.Shared.Exceptions;
 using SkillHaven.Shared.Infrastructure.Exceptions;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -24,20 +29,25 @@ namespace SkillHaven.Application.Features.Users.Commands
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         public readonly IUserService _userService;
+        private readonly IStringLocalizer _localizer;
+        private readonly ILoggerService<LoginUserCommandHandler> _logger;
 
- 
 
-        public LoginUserCommandHandler(IUserRepository userRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IUserService userService)
+        public LoginUserCommandHandler(IUserRepository userRepository, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IUserService userService, ILoggerService<LoginUserCommandHandler> logger)
         {
             _userRepository=userRepository;
             _configuration = configuration;
             _httpContextAccessor=httpContextAccessor;
             _userService=userService;
+            _localizer=new Localizer();
+            _logger=logger;
         }
 
         public Task<string> Handle(LoginUserCommand request, CancellationToken cancellationToken)
         {
             var user = _userRepository.GetByEmail(request.Email);//getbyemail ++
+
+            if (user==null  || user is { IsDeleted: true })  throw new UserVerifyException("User cannot find");
 
             bool passwordValidation = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
 
@@ -45,9 +55,9 @@ namespace SkillHaven.Application.Features.Users.Commands
                 throw new DatabaseValidationException("Password is wrong");
 
             if (!user.Email.Equals(request.Email))
-                throw new DatabaseValidationException("Email cannot found");
-          
- 
+                throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Email"].Value);
+
+            _logger.LogError($"{user.Email} is succesful+++ly logged in at {DateTime.Now}");
             return Task.FromResult(_userService.CreateToken(user));
         }
     

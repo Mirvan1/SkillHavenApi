@@ -14,5 +14,7 @@ namespace SkillHaven.Infrastructure.Repositories
         public SupervisorRepository(shDbContext dbContext) : base(dbContext)
         {
         }
+
+
     }
 }

@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Domain.Entities;
-using SkillHaven.Shared;
+using SkillHaven.Shared.User;
+using SkillHaven.Shared.User.Mail;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -30,14 +31,15 @@ namespace SkillHaven.WebApi.Controllers
 
         }
 
+ 
+        [HttpGet("get-logged-user")]
+        public async Task<IActionResult> GetUser()
+        {
+            var query = new GetLoggedUserQuery {  };
+            var userDto = await _mediator.Send(query);
 
-
-        //[HttpPost]
-        //public async Task<IActionResult> CreateUser(CreateUserCommand command)
-        //{
-        //    int userId = await _mediator.Send(command);
-        //    return Ok(userId);
-        //}
+            return Ok(userDto);
+        }
 
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUser(int userId)
@@ -57,7 +59,7 @@ namespace SkillHaven.WebApi.Controllers
             return Ok(result);
         }
 
-        [HttpPut("change-password")]
+        [HttpPatch("change-password")]
         public async Task<IActionResult> ChangePassword(ChangePasswordCommand command)
         {
             var result = await _mediator.Send(command);
@@ -74,10 +76,48 @@ namespace SkillHaven.WebApi.Controllers
         }
 
 
+        [HttpDelete("{UserId}")]
+        public async Task<IActionResult> DeleteUser(int UserId)
+        {
+            var result = await _mediator.Send(new DeleteUserCommand() { UserId=UserId });
+            return Ok(result);
+        }
+
+
         [HttpPost("login"),AllowAnonymous]
         public async Task<IActionResult> UserLogin(LoginUserCommand command)
         {
 
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+        [HttpPost("verify-user"), AllowAnonymous]
+        public async Task<IActionResult> VerifyUser(VerifyUserCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+
+        [HttpPost("forgot-password"), AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+
+        [HttpPost("reset-password"), AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ResetPasswordCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
+        [HttpPost("mail-checker"), AllowAnonymous]
+        public async Task<IActionResult> MailUserChecker(MailUserCheckerCommand command)
+        {
             var result = await _mediator.Send(command);
             return Ok(result);
         }

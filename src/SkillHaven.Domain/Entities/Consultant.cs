@@ -11,8 +11,8 @@ namespace SkillHaven.Domain.Entities
         public int ConsultantId { get; set; }
         public int UserId { get; set; }
         public int Experience { get; set; }
-        public string Description { get; set; }
-        public int Rating { get; set; }
+        public string? Description { get; set; }
+        public decimal? Rating { get; set; }
         public User User { get; set; }
 
     }

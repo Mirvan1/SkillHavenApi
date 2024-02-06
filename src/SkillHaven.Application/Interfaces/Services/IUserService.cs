@@ -1,5 +1,5 @@
 ﻿using SkillHaven.Domain.Entities;
-using SkillHaven.Shared;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +15,6 @@ namespace SkillHaven.Application.Interfaces.Services
 
         public bool isUserAuthenticated();
         public UserDto GetUser();
+        public UserDto GetUserFromToken(string token);
     }
 }

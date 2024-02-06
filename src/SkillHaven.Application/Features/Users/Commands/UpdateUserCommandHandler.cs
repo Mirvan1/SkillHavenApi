@@ -4,8 +4,8 @@ using Microsoft.Extensions.Configuration;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
-using SkillHaven.Shared;
 using SkillHaven.Shared.Infrastructure.Exceptions;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +32,7 @@ namespace SkillHaven.Application.Features.Users.Commands
 
             var user = _userRepository.GetByEmail(getUserEmail);
 
-            if (user is null) throw new DatabaseValidationException("User not found");
+            if (user is null  || user is { IsDeleted: true }) throw new DatabaseValidationException("User not found");
 
             user.Email=request.Email;
             user.FirstName =request.FirstName;

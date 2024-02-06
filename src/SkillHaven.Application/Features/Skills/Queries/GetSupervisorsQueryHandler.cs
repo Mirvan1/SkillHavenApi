@@ -1,12 +1,17 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Localization;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Shared;
 using SkillHaven.Shared.Exceptions;
+using SkillHaven.Shared.Skill;
+using SkillHaven.Shared.User;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -19,26 +24,28 @@ namespace SkillHaven.Application.Features.Skills.Queries
     public class GetSupervisorsQueryHandler : IRequestHandler<GetSupervisorsQuery, PaginatedResult<SkillerDto>>
     {
         private readonly ISupervisorRepository _supervisorRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
-        public GetSupervisorsQueryHandler(ISupervisorRepository supervisorRepository, IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper)
+        public readonly IStringLocalizer _localizer;
+        public readonly IUtilService _utilService;
+        public GetSupervisorsQueryHandler(ISupervisorRepository supervisorRepository, IUserService userService, IMapper mapper, IUtilService utilService)
         {
             _supervisorRepository=supervisorRepository;
-            _httpContextAccessor=httpContextAccessor;
             _userService=userService;
             _mapper=mapper;
+            _localizer=new Localizer();
+            _utilService=utilService;
         }
 
 
 
-        public Task<PaginatedResult<SkillerDto>> Handle(GetSupervisorsQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<SkillerDto>> Handle(GetSupervisorsQuery request, CancellationToken cancellationToken)
         {
 
             Expression<Func<Supervisor, bool>> filterExpression = null;
             Func<IQueryable<Supervisor>, IOrderedQueryable<Supervisor>> orderByExpression = null;
 
-            if (!_userService.isUserAuthenticated()) throw new UserVerifyException("User is not authorize");
+            if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
 
             if (!string.IsNullOrEmpty(request.Filter))
@@ -68,14 +75,22 @@ namespace SkillHaven.Application.Features.Skills.Queries
                         FullName=data.User?.FirstName+" "+data.User?.LastName,
                         SupervisorDescription=data.Description,
                         SupervisorExpertise=data.Expertise,
-                        ProfilePicture=data.User?.ProfilePicture,
+                        ProfilePicture=_utilService.GetPhotoAsBase64( data.User?.ProfilePicture),
                         role=Enum.TryParse(data.User?.Role, out Role r) ? r : null,
-                        Email=data?.User?.Email
+                        Email=data?.User?.Email,
+                        UserId=data.UserId,
+                        Rating= await _utilService.RateCalculator(data.UserId, cancellationToken)
                     };
                     result.Data.Add(skillerDto);
                 }
+
+                if (request.OrderByPropertname.Equals("Rating"))
+                {
+                    result.Data = request.OrderBy ? result.Data.OrderBy(x => x.Rating).ToList() :
+                         result.Data.OrderByDescending(x => x.Rating).ToList();
+                }
             }
-            return Task.FromResult(result);
+            return result;
         }
     }
 }

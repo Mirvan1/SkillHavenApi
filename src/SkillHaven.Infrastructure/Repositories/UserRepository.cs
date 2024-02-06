@@ -2,7 +2,7 @@
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Infrastructure.Data;
-using SkillHaven.Shared;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;

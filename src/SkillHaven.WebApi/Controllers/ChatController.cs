@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SkillHaven.Shared;
+using SkillHaven.Shared.Chat;
 
 namespace SkillHaven.WebApi.Controllers
 {
@@ -19,23 +19,33 @@ namespace SkillHaven.WebApi.Controllers
         [HttpGet("GetMessageByUser")]
         public async Task<IActionResult> GetMessages([FromQuery] GetMessagesByUserQuery query)
         {
-            var getMessages = await _mediator.Send(query);
-            return Ok(getMessages);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
 
         [HttpGet("GetAllChatUser")]
-        public IActionResult GetAllChatUser()
+        public async Task<IActionResult> GetAllChatUser([FromQuery] GetAllChatUserQuery query)
         {
-            return null;
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
         [HttpGet("GetOnlineUsers")]
-        public IActionResult GetOnlineUsers()
+        public async Task<IActionResult> GetOnlineUsers([FromQuery] GetOnlineUsersQuery query)
         {
-            return null;
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
+
+        [HttpGet("GetChatUser/{UserId}")]
+        public async Task<IActionResult> GetChatUser(int UserId)
+        {
+            GetChatUserQuery query = new() { UserId=UserId };
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
 
 
     }

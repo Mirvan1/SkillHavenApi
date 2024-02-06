@@ -51,8 +51,8 @@ namespace SkillHaven.Infrastructure.Data
             ConfigureChatUser(modelBuilder.Entity<ChatUser>());
             ConfigureChatUserConnection(modelBuilder.Entity<ChatUserConnection>());
             ConfigureMessages(modelBuilder.Entity<Message>());
-
-
+            ConfigureBlogVote(modelBuilder.Entity<BlogVote>());
+            ConfigureBlogTopic(modelBuilder.Entity<BlogTopic>());
 
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -81,7 +81,9 @@ namespace SkillHaven.Infrastructure.Data
             builder.Property(u => u.FirstName).HasMaxLength(50);
             builder.Property(u => u.LastName).HasMaxLength(50);
             builder.Property(u => u.ProfilePicture).HasMaxLength(255);
-
+            builder.Property(c => c.IsDeleted).IsRequired();
+            builder.Property(u => u.MailConfirmationCode).IsRequired().HasMaxLength(7);
+            builder.Property(u => u.HasMailConfirm).IsRequired();
             // Configure User-Supervisor relationship
             builder.HasOne(u => u.Supervisor)
                 .WithOne(s => s.User)
@@ -109,7 +111,7 @@ namespace SkillHaven.Infrastructure.Data
             builder.HasKey(c => c.ConsultantId);
             builder.Property(c => c.Experience).IsRequired();
             builder.Property(c => c.Description).HasMaxLength(255);
-            builder.Property(c => c.Rating).IsRequired();
+            builder.Property(c => c.Rating);
 
             builder.HasOne(c => c.User)
          .WithOne(u => u.Consultant)
@@ -122,9 +124,9 @@ namespace SkillHaven.Infrastructure.Data
         {
             builder.ToTable("Supervisors"); // Tablo adını belirle
             builder.HasKey(s => s.SupervisorId);
-            builder.Property(s => s.Expertise).HasMaxLength(100);
+            builder.Property(s => s.Expertise).IsRequired().HasMaxLength(100);
             builder.Property(s => s.Description).HasMaxLength(255);
-            builder.Property(c => c.Rating).IsRequired();
+            builder.Property(c => c.Rating);
 
             // User ile ilişkiyi belirle
             builder.HasOne(s => s.User)
@@ -143,7 +145,8 @@ namespace SkillHaven.Infrastructure.Data
             builder.Property(b => b.UpdateDate).IsRequired();
             builder.Property(b => b.IsPublished).IsRequired();
             builder.Property(b => b.Vote);
-
+            builder.Property(b => b.NOfReading);
+            builder.Property(b => b.PhotoPath);
             builder.HasOne(b => b.User)
                 .WithMany(u => u.Blogs)
                 .HasForeignKey(b => b.UserId);
@@ -151,6 +154,12 @@ namespace SkillHaven.Infrastructure.Data
             builder.HasMany(b => b.BlogComments)
         .WithOne(bc => bc.Blog)
         .HasForeignKey(bc => bc.BlogId);
+
+            builder.HasOne(bc => bc.BlogTopics)
+             .WithMany(b => b.Blogs)
+             .HasForeignKey(bc => bc.BlogTopicId);
+
+
         }
 
         private void ConfigureBlogComments(EntityTypeBuilder<BlogComments> builder)
@@ -224,6 +233,29 @@ namespace SkillHaven.Infrastructure.Data
             builder.HasOne(uc => uc.ChatUser)
                 .WithMany(cu => cu.UserConnections)
                 .HasForeignKey(uc => uc.ChatUserId);
+        }
+
+
+        private void ConfigureBlogVote(EntityTypeBuilder<BlogVote> builder)
+        {
+            builder.ToTable("BlogVotes");
+            builder.HasKey(uc => uc.BlogVoteId);
+
+            builder.HasOne(uc => uc.User)
+                .WithMany(cu => cu.BlogVotes)
+                .HasForeignKey(uc => uc.UserId);
+        }
+
+
+        private void ConfigureBlogTopic(EntityTypeBuilder<BlogTopic> builder)
+        {
+            builder.ToTable("BlogTopics");
+            builder.HasKey(uc => uc.BlogTopicId);
+            builder.Property(x => x.TopicName).IsRequired();
+
+            builder.HasMany(b => b.Blogs)
+             .WithOne(bc => bc.BlogTopics)
+             .HasForeignKey(bc => bc.BlogTopicId);
         }
 
     }

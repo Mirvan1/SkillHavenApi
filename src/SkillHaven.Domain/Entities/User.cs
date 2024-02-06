@@ -14,7 +14,11 @@ namespace SkillHaven.Domain.Entities
         public string Role { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string ProfilePicture { get; set; }
+        public string? ProfilePicture { get; set; }
+
+        public bool IsDeleted { get; set; }
+        public string? MailConfirmationCode { get; set; }
+        public bool? HasMailConfirm { get; set; }
 
         // Navigation properties for relationships
         public Supervisor? Supervisor { get; set; }
@@ -22,6 +26,7 @@ namespace SkillHaven.Domain.Entities
 
         public virtual ICollection<Blog> Blogs { get; set; }
         public virtual ICollection<BlogComments> BlogComments { get; set; }
+        public virtual ICollection<BlogVote> BlogVotes { get; set; }
 
     }
 }

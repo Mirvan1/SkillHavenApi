@@ -2,49 +2,50 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SkillHaven.Shared;
+using SkillHaven.Shared.Skill;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SkillHaven.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class SkillController : BaseController
     {
         public SkillController(IMediator mediator) : base(mediator)
         {
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("GetAllSkiller")]
+        public async Task<IActionResult> GetAll([FromQuery] GetAllSkillerQuery query)
         {
-            var query = new GetAllSkillerQuery();
-            var getAll = await _mediator.Send(query);
-
-            return Ok(getAll);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
 
 
-        [HttpGet("GetSupervisor")]
-        public async Task<IActionResult> GetSupervisor([FromQuery]GetSupervisorsQuery query)
+        [HttpGet("GetSupervisors")]
+        public async Task<IActionResult> GetSupervisors([FromQuery]GetSupervisorsQuery query)
         {
-            var getAll = await _mediator.Send(query);
-
-            return Ok(getAll);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
 
         [HttpGet("GetConsultants")]
         public async Task<IActionResult> GetConsultants([FromQuery] GetConsultantsQuery query)
         {
-            var getAll = await _mediator.Send(query);
-
-            return Ok(getAll);
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
-
+        [HttpGet("GetSkiller/{UserId}")]
+        public async Task<IActionResult> GetSkiller(int UserId)
+        {
+            var result = await _mediator.Send(new GetSkillerQuery() { UserId = UserId });
+            return Ok(result);
+        }
 
     }
 }

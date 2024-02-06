@@ -5,8 +5,9 @@ using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
 using SkillHaven.Infrastructure.Repositories;
-using SkillHaven.Shared;
+using SkillHaven.Shared.Exceptions;
 using SkillHaven.Shared.Infrastructure.Exceptions;
+using SkillHaven.Shared.User;
 using System.Linq.Expressions;
 using System.Security.Claims;
 
@@ -40,17 +41,17 @@ namespace SkillHaven.WebApi.Hubs
             var currentUser = _userRepository.GetByEmail(email);
            
             var getSenderChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
-            if (getSenderChatUser is null) throw new ArgumentNullException(" sender not found");
+            if (getSenderChatUser is null) throw new HubConnectionException(" sender not found");
 
             var chatUsers = _userRepository.GetAll();
 
-            if (chatUsers is null) throw new DatabaseValidationException("Users cannot found");
+            if (chatUsers is null) throw new HubConnectionException("Users cannot found");
 
             foreach (var user in chatUsers)
             {
                 var getReceiverChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
 
-                if (getReceiverChatUser is null) throw new ArgumentNullException("one of receiver not found");
+                if (getReceiverChatUser is null) throw new HubConnectionException("one of receiver not found");
 
                 var message = new Message
                 {
@@ -74,11 +75,15 @@ namespace SkillHaven.WebApi.Hubs
             var currentUser = _userRepository.GetByEmail(email);
 
             var getSenderChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
-            if (getSenderChatUser is null) throw new ArgumentNullException(" sender not found");
+            if (getSenderChatUser is null) throw new HubConnectionException(" sender not found");
+
+            var getSenderConnectionInfo = _userConnectionRepo.GetByChatUserId(getSenderChatUser.Id);
+            if (getSenderChatUser is null) throw new HubConnectionException(" sender not found");
+
 
 
             var getReceiverChatUser = _chatUserRepository.getByUserId(receiverId);
-            if (getReceiverChatUser is null) throw new ArgumentNullException(" receiver not found");
+            if (getReceiverChatUser is null) throw new HubConnectionException(" receiver not found");
 
             var messageClient = new Message
             {
@@ -86,7 +91,7 @@ namespace SkillHaven.WebApi.Hubs
                 Content = messageContent,
                 Timestamp = DateTime.Now,
                 ReceiverId = getReceiverChatUser.Id,
-                MessageType = MessageType.All.ToString(),
+                MessageType = MessageType.Client.ToString(),
             };
 
             _messageRepository.Add(messageClient);
@@ -95,11 +100,14 @@ namespace SkillHaven.WebApi.Hubs
             var receiver = _userConnectionRepo.GetByChatUserId(getReceiverChatUser.Id);//useridye gore bul
             if (receiver is null)
             {
-                throw new DatabaseValidationException("Receiver can not find");
+                throw new HubConnectionException("Receiver can not find");
             }
 
+            await Clients.Client(getSenderConnectionInfo.ConnectionId).SendAsync($"SenderMessageToClient", receiverId, messageContent);
 
             await Clients.Client(receiver.ConnectionId).SendAsync($"ReceiveMessageToClient", currentUser.UserId.ToString(), messageContent);
+            await Clients.Client(getSenderConnectionInfo.ConnectionId).SendAsync($"ReceiveMessageToClient", receiverId, messageContent);
+
         }
 
         public async Task JoinGroup(string groupName)
@@ -118,9 +126,9 @@ namespace SkillHaven.WebApi.Hubs
             var currentUser = _userRepository.GetByEmail(email);
             var userAdmin = _userRepository.GetById(currentUser.UserId);
 
-            if (userAdmin.Role != Role.Admin.ToString()) throw new UnauthorizedAccessException("Only Admin use this feature");
+            if (userAdmin.Role != Role.Admin.ToString()) throw new HubConnectionException("Only Admin use this feature");
             var getSenderChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
-            if (getSenderChatUser is null) throw new ArgumentNullException("Chat user not found..");
+            if (getSenderChatUser is null) throw new HubConnectionException("Chat user not found..");
 
             var supervisors = _userRepository.GetAllSupervisors();
             IEnumerable<string> supervisorConnections = GetSupervisorConnectionIds(supervisors);
@@ -129,7 +137,7 @@ namespace SkillHaven.WebApi.Hubs
             {
                 var getReceiverChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
 
-                if (getReceiverChatUser is null) throw new ArgumentNullException("one of receiver not found");
+                if (getReceiverChatUser is null) throw new HubConnectionException("one of receiver not found");
 
                 var message = new Message
                 {
@@ -153,11 +161,11 @@ namespace SkillHaven.WebApi.Hubs
             var currentUser = _userRepository.GetByEmail(email);
             var userAdmin = _userRepository.GetById(currentUser.UserId);
 
-            if (userAdmin.Role != Role.Admin.ToString()) throw new UnauthorizedAccessException("Only Admin use this feature");
+            if (userAdmin.Role != Role.Admin.ToString()) throw new HubConnectionException("Only Admin use this feature");
 
             var supervisors = _userRepository.GetAllConsultants();
             var getSenderChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
-            if (getSenderChatUser is null) throw new ArgumentNullException("Chat user not found..");
+            if (getSenderChatUser is null) throw new HubConnectionException("Chat user not found..");
 
             IEnumerable<string> supervisorConnections = GetConsultantConnectionIds(supervisors);
 
@@ -165,7 +173,7 @@ namespace SkillHaven.WebApi.Hubs
             {
                 var getReceiverChatUser = _chatUserRepository.getByUserId(currentUser.UserId);
 
-                if (getReceiverChatUser is null) throw new ArgumentNullException("one of receiver not found");
+                if (getReceiverChatUser is null) throw new HubConnectionException("one of receiver not found");
 
                 var message = new Message
                 {
@@ -214,12 +222,24 @@ namespace SkillHaven.WebApi.Hubs
                     _chatUserRepository.Add(newChatUser);
                     _chatUserRepository.SaveChanges();
                 }
+                else
+                {
+
+                    if (checkChatUser.Status==ChatUserStatus.Offline.ToString())
+                    {
+                        checkChatUser.LastSeen=DateTime.Now;    
+                        checkChatUser.Status=ChatUserStatus.Online.ToString();
+                        _chatUserRepository.Update(checkChatUser);
+                        _chatUserRepository.SaveChanges();
+                    }
+                }
+
 
                 bool checkConnections = _userConnectionRepo.CheckUserConnected(currentUser.UserId, connectionId);
 
                 if (checkConnections)
                 {
-                    throw new DatabaseValidationException("User already connected");
+                    throw new HubConnectionException("User already connected");
                 }
                 else
                 {
@@ -247,7 +267,7 @@ namespace SkillHaven.WebApi.Hubs
             var connectionId = Context.ConnectionId;
             var userConnection = _userConnectionRepo.GetByConnnectionId(connectionId);
 
-            if (userConnection is null) throw new DatabaseValidationException("Relate connectionId do not found");
+            if (userConnection is null) throw new HubConnectionException("Relate connectionId do not found");
 
             userConnection.ChatUser.Status = ChatUserStatus.Offline.ToString();
             _chatUserRepository.Update(userConnection.ChatUser);
@@ -266,7 +286,7 @@ namespace SkillHaven.WebApi.Hubs
             var connectionId = Context.ConnectionId;
             var userConnection = _userConnectionRepo.GetByConnnectionId(connectionId);
 
-            if (userConnection is null) throw new DatabaseValidationException("Relate connectionId do not found");
+            if (userConnection is null) throw new HubConnectionException("Relate connectionId do not found");
 
             userConnection.ChatUser.Status = ChatUserStatus.Offline.ToString();
             _chatUserRepository.Update(userConnection.ChatUser);

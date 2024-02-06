@@ -4,10 +4,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Domain.Entities;
-using SkillHaven.Shared;
+using SkillHaven.Shared.User;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -21,6 +22,7 @@ namespace SkillHaven.Application.Interfaces.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private const string EmailClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
 
 
         public UserService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IUserRepository userRepository, IMapper mapper)
@@ -55,9 +57,22 @@ namespace SkillHaven.Application.Interfaces.Services
 
         public UserDto GetUser()
         {
-            var getUserEmail = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
+            var getUserEmail = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == EmailClaim)?.Value;
+            return GetUserFromMail(getUserEmail);
+        }
 
-            var getUser = _userRepository.GetByEmail(getUserEmail);
+        public UserDto GetUserFromToken(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+
+            var getUserEmail = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == EmailClaim)?.Value;
+            return GetUserFromMail(getUserEmail);  
+        }
+
+        private UserDto GetUserFromMail(string email)
+        {
+            var getUser = _userRepository.GetByEmail(email);
             var userDto = _mapper.Map<UserDto>(getUser);
             return userDto;
         }
