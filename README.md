@@ -16,10 +16,4 @@ SkillHavenApi helps people learn from experts in different jobs. It's like askin
 - **Sending Mail**: Features to sending emails within the application using MailKit Library .
 - **Localization**: Supports multiple languages and cultures, making the application globally accessible.
 
-## Getting Started
 
-To get a local copy up and running, follow these simple steps:
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Mirvan1/SkillHavenApi.git
