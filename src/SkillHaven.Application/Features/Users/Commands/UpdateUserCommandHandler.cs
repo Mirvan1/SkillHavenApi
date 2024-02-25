@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
+using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
 using SkillHaven.Domain.Entities;
@@ -19,11 +21,12 @@ namespace SkillHaven.Application.Features.Users.Commands
     {
         public readonly IUserRepository _userRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
+        private readonly IStringLocalizer _localizer;
         public UpdateUserCommandHandler(IUserRepository userRepository, IHttpContextAccessor httpContextAccessor)
         {
             _userRepository=userRepository;
             _httpContextAccessor=httpContextAccessor;
+            _localizer = new Localizer();
         }
 
         public Task<bool> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
@@ -32,7 +35,7 @@ namespace SkillHaven.Application.Features.Users.Commands
 
             var user = _userRepository.GetByEmail(getUserEmail);
 
-            if (user is null  || user is { IsDeleted: true }) throw new DatabaseValidationException("User not found");
+            if (user is null  || user is { IsDeleted: true }) throw new DatabaseValidationException(_localizer["UserNotFound", "Errors"].Value);
 
             user.Email=request.Email;
             user.FirstName =request.FirstName;

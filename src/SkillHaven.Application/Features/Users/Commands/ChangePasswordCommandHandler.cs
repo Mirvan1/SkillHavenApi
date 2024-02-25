@@ -40,7 +40,7 @@ namespace SkillHaven.Application.Features.Users.Commands
 
             if (!passwordValidation) throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Old Password"].Value);
 
-            if(!request.NewPassword.Equals(request.ConfirmPassword)) throw new AggregateException("New password and ConfirmPassword is not match");
+            if(!request.NewPassword.Equals(request.ConfirmPassword)) throw new AggregateException(_localizer["PasswordMatching","Errors"].Value);
 
             getUser.Password=BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
 

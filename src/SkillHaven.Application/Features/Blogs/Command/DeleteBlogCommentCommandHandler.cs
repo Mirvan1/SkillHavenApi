@@ -48,7 +48,7 @@ namespace SkillHaven.Application.Features.Blogs.Command
             _blogCommentRepository.Update(blogComment);
             int result=await _blogCommentRepository.SaveChangesAsync(cancellationToken);
 
-            return result>0;
+            return result >0;
         }
     }
 }

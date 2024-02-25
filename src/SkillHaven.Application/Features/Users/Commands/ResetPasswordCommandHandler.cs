@@ -38,7 +38,7 @@ namespace SkillHaven.Application.Features.Users.Commands
                 || string.IsNullOrEmpty(request.Password)
                 || string.IsNullOrEmpty(request.ConfirmPassword)) throw new UserVerifyException(_localizer["Conflict", "Errors", "Email"].Value);
 
-            if (!request.Password.Equals(request.Password)) throw new UserVerifyException("passwor is not match");
+            if (!request.Password.Equals(request.Password)) throw new UserVerifyException(_localizer["PasswordMatching","Errors"].Value);
 
             var user = _userService.GetUserFromToken(request.Token);
 
@@ -46,9 +46,9 @@ namespace SkillHaven.Application.Features.Users.Commands
 
             var getUser = _userRepository.GetByEmail(user.Email);
 
-            if (!getUser.Email.Equals(request.Email)) throw new UserVerifyException("Somehint went wrong..");
+            if (!getUser.Email.Equals(request.Email)) throw new UserVerifyException(_localizer["Conflict", "Errors", "Email"].Value);
 
-            if (getUser is null) throw new DatabaseValidationException("user not found");
+            if (getUser is null) throw new DatabaseValidationException(_localizer["UserNotFound", "Errors"].Value);
 
             getUser.Password=BCrypt.Net.BCrypt.HashPassword(request.Password);
 

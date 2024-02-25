@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SkillHaven.Shared.Blog;
 using SkillHaven.Shared.User;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SkillHaven.WebApi.Controllers
 {
@@ -60,7 +59,7 @@ namespace SkillHaven.WebApi.Controllers
         }
 
 
-        [HttpPut("/vote")]
+        [HttpPut("vote")]
         public async Task<IActionResult> VoteBlog(VoteBlogCommand command)
         {
             var result = await _mediator.Send(command);
@@ -68,7 +67,7 @@ namespace SkillHaven.WebApi.Controllers
         }
 
 
-        [HttpPost("/comments")]
+        [HttpPost("comments")]
         public async Task<IActionResult> GetBlogComments(  BlogByCommentsQuery query)
         {
             var result = await _mediator.Send(query);
@@ -76,7 +75,7 @@ namespace SkillHaven.WebApi.Controllers
         }
 
 
-        [HttpPost("/commment/create")]
+        [HttpPost("commment/create")]
         public async Task<IActionResult> CreateBlogComment([FromBody] CreateBlogCommentCommand command)
         {
             var result = await _mediator.Send(command);
@@ -92,7 +91,7 @@ namespace SkillHaven.WebApi.Controllers
         }
 
 
-        [HttpGet("/topics")]
+        [HttpGet("topics")]
         public async Task<IActionResult> GetBlogTopics([FromQuery]GetBlogTopicsQuery query)
         {
             var result = await _mediator.Send(query);
