@@ -5,6 +5,7 @@ using Microsoft.Extensions.Localization;
 using SkillHaven.Application.Configurations;
 using SkillHaven.Application.Interfaces.Repositories;
 using SkillHaven.Application.Interfaces.Services;
+using SkillHaven.Domain.Entities;
 using SkillHaven.Shared.Blog;
 using SkillHaven.Shared.Exceptions;
 using SkillHaven.Shared.Infrastructure.Exceptions;
@@ -23,15 +24,15 @@ namespace SkillHaven.Application.Features.Blogs.Command
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         public readonly IStringLocalizer _localizer;
-
-        public DeleteBlogCommandHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository)
+        private readonly ILoggerService<DeleteBlogCommandHandler> _logger;
+        public DeleteBlogCommandHandler(IHttpContextAccessor httpContextAccessor, IUserService userService, IMapper mapper, IBlogRepository blogRepository, ILoggerService<DeleteBlogCommandHandler> logger)
         {
-            _httpContextAccessor=httpContextAccessor;
-            _userService=userService;
-            _mapper=mapper;
-            _blogRepository=blogRepository;
-            _localizer=new Localizer();
-
+            _httpContextAccessor = httpContextAccessor;
+            _userService = userService;
+            _mapper = mapper;
+            _blogRepository = blogRepository;
+            _localizer = new Localizer();
+            _logger = logger;
         }
         public async Task<bool> Handle(DeleteBlogCommand request, CancellationToken cancellationToken)
         {
@@ -44,7 +45,9 @@ namespace SkillHaven.Application.Features.Blogs.Command
 
             _blogRepository.Update(blog);
             int result = await _blogRepository.SaveChangesAsync(cancellationToken);
-            return  result>0;
+            _logger.LogInfo($"The blog deleted at {DateTime.Now}. Blog Id:{blog.BlogId} ");
+
+            return result >0;
         }
     }
 }

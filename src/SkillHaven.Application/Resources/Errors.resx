@@ -147,13 +147,22 @@
   <data name="NotNull2" xml:space="preserve">
     <value>The field {0} cannot be null. Please provide a valid value.</value>
   </data>
+  <data name="PasswordMatching" xml:space="preserve">
+    <value>New password and ConfirmPassword is not match</value>
+  </data>
   <data name="RangeError" xml:space="preserve">
     <value>The value for {0} should be between {1} and {2}.</value>
+  </data>
+  <data name="SkillNotFound" xml:space="preserve">
+    <value>The user don t have any skill</value>
   </data>
   <data name="UnAuthorized" xml:space="preserve">
     <value>Unauthorized access to resource {0}. Please ensure you have the right credentials.</value>
   </data>
   <data name="UserNotFound" xml:space="preserve">
     <value>The User can not find.</value>
+  </data>
+  <data name="VoteException" xml:space="preserve">
+    <value>You already give vote</value>
   </data>
 </root>

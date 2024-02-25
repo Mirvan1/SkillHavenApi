@@ -42,7 +42,7 @@ namespace SkillHaven.Application.Features.Chat.ChatUser.Queries
 
             var getUser = _userService.GetUser();
 
-            if (getUser is null) throw new UnauthorizedAccessException("Sonething wrong in authorize");
+            if (getUser is null) throw new UnauthorizedAccessException(_localizer["UserNotFound","Errors"].Value);
             //if (getUser.Role!=Role.Admin.ToString()) throw new UnauthorizedAccessException("Only Admin access this endpoint");
 
             Expression<Func<SkillHaven.Domain.Entities.ChatUser, bool>> filterExpression = null;

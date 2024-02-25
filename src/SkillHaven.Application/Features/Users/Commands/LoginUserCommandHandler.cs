@@ -47,12 +47,12 @@ namespace SkillHaven.Application.Features.Users.Commands
         {
             var user = _userRepository.GetByEmail(request.Email);//getbyemail ++
 
-            if (user==null  || user is { IsDeleted: true })  throw new UserVerifyException("User cannot find");
+            if (user==null  || user is { IsDeleted: true }) throw new ArgumentNullException(_localizer["UserNotFound", "Errors"].Value);
 
             bool passwordValidation = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
 
             if (!passwordValidation)
-                throw new DatabaseValidationException("Password is wrong");
+                throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Password"].Value);
 
             if (!user.Email.Equals(request.Email))
                 throw new DatabaseValidationException(_localizer["NotFound", "Errors", "Email"].Value);

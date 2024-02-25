@@ -128,18 +128,6 @@ namespace SkillHaven.WebApi.Controllers
         {
             var result = await _mediator.Send(command);
             return Ok(result);
-            //string getToken = Request.Cookies["refreshToken"];
-
-            //DateTime expiredTime = Convert.ToDateTime(Request.Cookies["tokenExpired"]);
-
-            //if (string.IsNullOrWhiteSpace(getToken))
-            //    return Unauthorized("Refresh Token is Invalid");
-
-
-            //if (expiredTime < DateTime.Now)
-            //    return Unauthorized("Token is expired");
-
-
         }
 
     }

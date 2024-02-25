@@ -55,12 +55,12 @@ namespace SkillHaven.Application.Features.Users.Commands
 
             if (!(securityToken is JwtSecurityToken jwtSecurityToken) || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256Signature, StringComparison.InvariantCultureIgnoreCase))
             {
-                throw new SecurityTokenException("Invalid token");
+                throw new SecurityTokenException(_localizer["InternalServerError","Errors"].Value);
             }
 
             Claim emailClaim = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
 
-            if (emailClaim is null) throw new AggregateException("Something went wrong ... ");
+            if (emailClaim is null) throw new NullReferenceException(_localizer["InternalServerError", "Errors"].Value);
 
 
             var getUser = _userRepository.GetByEmail(emailClaim.Value);

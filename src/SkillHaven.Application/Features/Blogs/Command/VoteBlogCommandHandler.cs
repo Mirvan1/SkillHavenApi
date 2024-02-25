@@ -60,7 +60,7 @@ namespace SkillHaven.Application.Features.Blogs.Command
 
             var userVoted =await  _blogVoteRepository.GetByUserId(getUser.UserId,blog.BlogId,cancellationToken);
 
-            if (userVoted is not null && userVoted?.Count >0) throw new UserVerifyException("You already give vote");
+            if (userVoted is not null && userVoted?.Count >0) throw new UserVerifyException(_localizer["VoteException","Errors"].Value);
 
             _blogVoteRepository.AddAsync(new BlogVote()
             {

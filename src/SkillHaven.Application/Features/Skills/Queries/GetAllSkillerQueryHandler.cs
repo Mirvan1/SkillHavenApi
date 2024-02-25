@@ -40,7 +40,7 @@ namespace SkillHaven.Application.Features.Skills.Queries
         {//change this business to fetch from user table
             PaginatedResult<SkillerDto> skillers = new();
 
-            var str = _localizer["UnAuthorized","Errors"];
+           // var str = _localizer["UnAuthorized","Errors"];
             Expression<Func<Supervisor, bool>> filterExpressionSupervisor = null;
             Func<IQueryable<Supervisor>, IOrderedQueryable<Supervisor>> orderByExpressionSupervisor = null;
 

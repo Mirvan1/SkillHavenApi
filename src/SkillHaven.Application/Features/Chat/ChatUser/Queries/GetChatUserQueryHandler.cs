@@ -41,7 +41,7 @@ namespace SkillHaven.Application.Features.Chat.ChatUser
             
             var getUser = _userService.GetUser();
 
-            if (getUser is null) throw new UnauthorizedAccessException("Sonething wrong in authorize");
+            if (getUser is null) throw new UnauthorizedAccessException(_localizer["UserNotFound", "Errors"].Value);
 
 
 

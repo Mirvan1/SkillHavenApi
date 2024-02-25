@@ -111,7 +111,7 @@ namespace SkillHaven.Infrastructure.Data
             builder.HasKey(c => c.ConsultantId);
             builder.Property(c => c.Experience).IsRequired();
             builder.Property(c => c.Description).HasMaxLength(255);
-            builder.Property(c => c.Rating);
+            builder.Property(c => c.Rating).HasPrecision(6, 2); 
 
             builder.HasOne(c => c.User)
          .WithOne(u => u.Consultant)
@@ -126,7 +126,7 @@ namespace SkillHaven.Infrastructure.Data
             builder.HasKey(s => s.SupervisorId);
             builder.Property(s => s.Expertise).IsRequired().HasMaxLength(100);
             builder.Property(s => s.Description).HasMaxLength(255);
-            builder.Property(c => c.Rating);
+            builder.Property(c => c.Rating).HasPrecision(6, 2);
 
             // User ile ilişkiyi belirle
             builder.HasOne(s => s.User)

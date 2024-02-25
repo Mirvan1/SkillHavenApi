@@ -41,9 +41,9 @@ namespace SkillHaven.Application.Features.Skills.Queries
             if (!_userService.isUserAuthenticated()) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
             var getUser = await _userRepository.GetByIdAsync(request.UserId, cancellationToken,x => x.Supervisor, y => y.Consultant);
-            if (getUser is null) throw new ArgumentNullException("User cannot find");
+            if (getUser is null) throw new UserVerifyException(_localizer["UnAuthorized", "Errors"].Value);
 
-            if (getUser.Role==Role.User.ToString() || getUser.Role==Role.Admin.ToString()) throw new UnauthorizedAccessException("The user don t have any skill");
+            if (getUser.Role==Role.User.ToString() || getUser.Role==Role.Admin.ToString()) throw new UnauthorizedAccessException(_localizer["SkillNotFound", "Errors"].Value);
 
             // var user = _mapper.Map<SkillerDto>(getUser);
             SkillerDto getSkiller = new()
@@ -58,15 +58,10 @@ namespace SkillHaven.Application.Features.Skills.Queries
                 ProfilePicture=_utilService.GetPhotoAsBase64(getUser.ProfilePicture)
             };
 
-            if (getUser.Role==Role.Supervisor.ToString())
+            if (getUser.Role==Role.Supervisor.ToString() || getUser.Role == Role.Consultant.ToString())
             {
                 getSkiller.Rating=await _utilService.RateCalculator(getUser.UserId,cancellationToken);//getUser.Supervisor.Rating;
             }
-            if (getUser.Role==Role.Consultant.ToString())
-            {
-                getSkiller.Rating=await _utilService.RateCalculator(getUser.UserId,cancellationToken); // getUser.Consultant.Rating;
-            }
-
             return getSkiller;
         }
     }

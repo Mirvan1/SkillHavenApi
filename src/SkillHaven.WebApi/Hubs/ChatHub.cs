@@ -21,10 +21,10 @@ namespace SkillHaven.WebApi.Hubs
         private readonly IUserRepository _userRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserService _userService;
+        private readonly ILoggerService<ChatHub> _logger;
 
 
-
-        public ChatHub(IUserConnectionRepository userConnectionRepo, IMessageRepository messageRepository, IChatUserRepository chatUserRepository, IUserRepository userRepository, IHttpContextAccessor httpContextAccessor, IUserService userService)
+        public ChatHub(IUserConnectionRepository userConnectionRepo, IMessageRepository messageRepository, IChatUserRepository chatUserRepository, IUserRepository userRepository, IHttpContextAccessor httpContextAccessor, IUserService userService, ILoggerService<ChatHub> logger)
         {
             _userConnectionRepo = userConnectionRepo;
             _messageRepository = messageRepository;
@@ -32,6 +32,7 @@ namespace SkillHaven.WebApi.Hubs
             _userRepository = userRepository;
             _httpContextAccessor = httpContextAccessor;
             _userService = userService;
+            _logger = logger;
         }
 
         public async Task SendMessageToAll(string messageContent)
@@ -107,7 +108,7 @@ namespace SkillHaven.WebApi.Hubs
 
             await Clients.Client(receiver.ConnectionId).SendAsync($"ReceiveMessageToClient", currentUser.UserId.ToString(), messageContent);
             await Clients.Client(getSenderConnectionInfo.ConnectionId).SendAsync($"ReceiveMessageToClient", receiverId, messageContent);
-
+           // _logger.LogError($"Hub Connection: Sender  :{currentUser.FirstName} -- Receiver:{receiverId}  -- Message:{messageContent}");
         }
 
         public async Task JoinGroup(string groupName)
