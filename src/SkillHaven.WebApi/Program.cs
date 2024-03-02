@@ -26,13 +26,14 @@ builder.Services.AddFluentValidation(fv => {
     fv.RegisterValidatorsFromAssembly(assembly); 
 });
 
+
 builder.Host.UseNLog();
 builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
 builder.Logging.AddNLog();
 builder.Services.AddDBContext(builder.Configuration, LogManager.Setup().LoadConfigurationFromFile("nlog.config").GetCurrentClassLogger());
-builder.Services.AddHttpContextAccessor(); 
-builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddMailConfigDI(builder.Configuration);
 builder.Services.Configure<SkillRater>(builder.Configuration.GetSection("SkilRater"));
 builder.Services.AddDIRegistration();
  var assm = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.Contains("SkillHaven")).ToArray();

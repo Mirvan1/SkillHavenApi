@@ -123,6 +123,14 @@ namespace SkillHaven.WebApi.Controllers
         }
 
 
+        [HttpGet("get-captcha-key"), AllowAnonymous]
+        public async Task<IActionResult> GetCaptchaKey()
+        {
+            var result = await _mediator.Send(new GetCaptchaUIKeyQuery { });
+            return Ok(result);
+        }
+
+
         [HttpPost("auth"),AllowAnonymous]
         public async Task<IActionResult> Auth(AuthUserCommand command)//add controll by ip
         {

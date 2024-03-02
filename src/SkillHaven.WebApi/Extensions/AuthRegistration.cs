@@ -8,6 +8,10 @@ public static class AuthRegistration
 {
     public static IServiceCollection AddAuth(this IServiceCollection services,IConfiguration configuration)
     {
+        string secretKey = configuration["secret-key"].Replace("{secret-key-value}",
+     Environment.GetEnvironmentVariable("secret-key-value", EnvironmentVariableTarget.User));
+
+        var key = Encoding.ASCII.GetBytes(secretKey);
         services.AddAuthentication().AddJwtBearer(options =>
         {
             options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
@@ -15,7 +19,7 @@ public static class AuthRegistration
                 ValidateIssuerSigningKey = true,
                 ValidateAudience = false,
                 ValidateIssuer = false,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["secret-key"]))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
 
             };
 
