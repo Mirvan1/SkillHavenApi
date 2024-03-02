@@ -36,7 +36,10 @@ namespace SkillHaven.Application.Interfaces.Services
         public string CreateToken(User user)
         {
             List<Claim> claims = new List<Claim> { new Claim(ClaimTypes.Name, user.FirstName), new Claim(ClaimTypes.Email, user.Email), new Claim(ClaimTypes.Role, user.Role) };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["secret-key"]));
+            string secretKey = _configuration["secret-key"].Replace("{secret-key-value}",
+                Environment.GetEnvironmentVariable("secret-key-value", EnvironmentVariableTarget.User));
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
 
             var token = new JwtSecurityToken(claims: claims, expires: DateTime.Now.AddDays(3), signingCredentials: cred);

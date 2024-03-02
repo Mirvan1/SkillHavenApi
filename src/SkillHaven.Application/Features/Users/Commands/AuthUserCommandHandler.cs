@@ -39,7 +39,10 @@ namespace SkillHaven.Application.Features.Users.Commands
             //check condition for expiration token datetime later
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["secret-key"]); 
+            string secretKey = _configuration["secret-key"].Replace("{secret-key-value}",
+                 Environment.GetEnvironmentVariable("secret-key-value", EnvironmentVariableTarget.User));
+                
+            var key = Encoding.ASCII.GetBytes(secretKey); 
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
